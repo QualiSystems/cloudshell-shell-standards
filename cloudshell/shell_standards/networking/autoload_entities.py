@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import cloudshell.shell_standards.attribute as attributes
 import cloudshell.shell_standards.family_types as family_types
-from cloudshell.shell_standards.resource import BaseGenericNetworkPort as GenericPort
-from cloudshell.shell_standards.resource import GenericChassis, GenericModule, \
+from cloudshell.shell_standards.basic_models import BaseGenericNetworkPort as GenericPort
+from cloudshell.shell_standards.basic_models import GenericChassis, GenericModule, \
     GenericSubModule, GenericPowerPort, GenericPortChannel, BasePhysicalResource
 
 __all__ = ['GenericResource', 'GenericChassis', 'GenericModule', 'GenericSubModule',

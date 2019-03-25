@@ -10,7 +10,7 @@ class AttributeContainer(object):
         self.attributes = {}
 
 
-class AttributeUnit(object):
+class AttributeModel(object):
     """
     Attribute descriptor
     """
@@ -42,119 +42,144 @@ class AttributeUnit(object):
 
 
 class InstanceAttribute(object):
+    """
+    Validates object attribute
+    """
+
+    def __init__(self):
+        self.value_container = {}
 
     def __get__(self, instance, owner):
         if instance is None:
             return self
 
-        return self.value
+        return self.value_container.get(instance, None)
 
-    @attr_length_validator(AttributeUnit.MAX_LENGTH)
+    @attr_length_validator(AttributeModel.MAX_LENGTH)
     def __set__(self, instance, value):
-        self.value = value
+        self.value_container[instance] = value
 
 
 class IndexValidator(object):
     """
-    Index validator
+    Validates registered indexes
     """
 
     def __init__(self):
         self._address_dict = defaultdict(lambda: defaultdict(list))
 
-    def _generate_index(self, index, position):
+    @staticmethod
+    def _generate_index(index, position):
+        """Generate index name, when """
         return '{}-{}'.format(index, position)
 
-    def get_valid(self, resource):
+    def get_valid(self, node):
         """
-        :type resource: Resource
+        Validate index
+        :type node: StructureNode
         """
-        instance_list = self._address_dict[resource.prefix][resource.native_index]
-        if len(instance_list) > 1:
-            return self._generate_index(resource.native_index, instance_list.index(resource))
+        instance_list = self._address_dict.get(node.prefix, {}).get(node.native_index, [])
+        if node in instance_list and len(instance_list) > 1:
+            return self._generate_index(node.native_index, instance_list.index(node))
         else:
-            return resource.native_index
+            return node.native_index
 
-    def register(self, resource):
+    def register(self, node):
         """
-        :type resource: Resource
+        Register node
+        :type node: StructureNode
         """
-        self._address_dict[resource.prefix][resource.native_index].append(resource)
+        self._address_dict[node.prefix][node.native_index].append(node)
 
 
-class RelativeAddress(object):
+class StructureNode(object):
     ADDRESS_SEPARATOR = '/'
 
-    def __init__(self, address_separator=ADDRESS_SEPARATOR):
-        self._address_separator = address_separator
-
-    @staticmethod
-    def _get_local_address(prefix, index):
-        local_address = '{}{}'.format(prefix or '', index)
-        return local_address
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-
-        if instance.parent and instance.parent.address and instance.index:
-            return '{}{}{}'.format(instance.parent.address, self._address_separator,
-                                   self._get_local_address(instance.prefix, instance.index))
-        elif instance.index:
-            return self._get_local_address(instance.prefix, instance.index)
-        else:
-            return ''
-
-
-class StructureUnit(object):
-    _address = RelativeAddress()
-
-    def __init__(self, index, prefix, parent=None):
+    def __init__(self, index, prefix='', parent_node=None):
         """
         :type index: str
-        :type parent: Resource
+        :type prefix: str
+        :type parent_node: StructureNode
         """
-        self.parent = None
+
+        self._parent_node = None
+        self._index_validator = IndexValidator()
 
         self.native_index = index
         self.prefix = prefix
-
-        self.connect_parent(parent)
-
-        self.index_validator = IndexValidator()
+        self.parent_node = parent_node
 
     @cached_property
     def index(self):
-        if self.parent and self.parent.index_validator:
-            return self.parent.index_validator.get_valid(self)
+        """
+        Validated index
+        :rtype: str
+        """
+        if self.parent_node and self.parent_node._index_validator:
+            return self.parent_node._index_validator.get_valid(self)
         else:
             return self.native_index
 
     @cached_property
-    def address(self):
-        return self._address
+    def relative_address(self):
+        """
+        Relative address
+        :rtype: str
+        """
+        if self.parent_node:
+            return '{}{}{}'.format(self.parent_node.relative_address, self.ADDRESS_SEPARATOR,
+                                   self._local_address)
+        elif self.index:
+            return self._local_address
+        else:
+            return ''
 
-    def connect_parent(self, parent):
+    @property
+    def parent_node(self):
         """
-        :type parent: Resource
+        Parent node
+        :rtype: StructureNode
         """
-        if parent:
-            self.parent = parent
-            self.parent.index_validator.register(self)
+        return self._parent_node
+
+    @parent_node.setter
+    def parent_node(self, node):
+        """
+        :type node: StructureNode
+        """
+        if node:
+            self._parent_node = node
+            node._index_validator.register(self)
+
+    @property
+    def _local_address(self):
+        """
+        Generates local relative address
+        """
+        local_address = '{}{}'.format(self.prefix or '', self.index)
+        return local_address
+
+    def __str__(self):
+        return self._local_address
 
 
 if __name__ == '__main__':
-    resource = StructureUnit(None, None)
-    chassis = StructureUnit(1, 'CH', resource)
-    module1 = StructureUnit('dsd', 'M', chassis)
-    module2 = StructureUnit('sd', 'M', chassis)
-    port1 = StructureUnit('ff', 'P', module1)
-    port2 = StructureUnit('ff', 'P', module2)
-    port3 = StructureUnit('ff', 'P', module2)
-    print(port1.address)
-    print(port2.address)
-    print(port3.address)
-    print(module1.address)
-    print(module2.address)
-    print(chassis.address)
-    print(resource.address)
+    resourcee = StructureNode(None, None)
+    chassis = StructureNode(1, 'CH', resourcee)
+    module1 = StructureNode('dsd', 'M', chassis)
+    module2 = StructureNode('sd', 'M', chassis)
+    module3 = StructureNode('sd', 'M', chassis)
+    port1 = StructureNode('ff', 'P', module1)
+    port2 = StructureNode('ff', 'P', module2)
+    port3 = StructureNode('ff', 'P', module2)
+    port4 = StructureNode('hh', 'P', module3)
+    port5 = StructureNode('hh', 'P', module3)
+    print(port1.relative_address)
+    print(port2.relative_address)
+    print(port3.relative_address)
+    print(port5.relative_address)
+    print(module1.relative_address)
+    print(module2.relative_address)
+    print(module3.relative_address)
+    print(chassis.relative_address)
+    print(resourcee.relative_address)
