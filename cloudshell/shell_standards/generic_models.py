@@ -83,6 +83,13 @@ class GenericModule(AbstractResource):
         """
         self._add_sub_resource_with_type_restrictions(sub_module, [GenericSubModule])
 
+    def connect_port(self, port):
+        """
+        Connect port sub resource
+        :param AbstractResource port:
+        """
+        self._add_sub_resource_with_type_restrictions(port, [GenericPort])
+
 
 class GenericSubModule(GenericModule):
     RELATIVE_ADDRESS_PREFIX = 'SM'

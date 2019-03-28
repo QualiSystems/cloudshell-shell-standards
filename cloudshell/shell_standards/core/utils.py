@@ -8,13 +8,13 @@ def attr_length_validator(max_length):
 
             nargs = []
             for arg in args:
-                if isinstance(arg, basestring):
+                if isinstance(arg, str):
                     nargs.append(arg[:max_length])
                 else:
                     nargs.append(arg)
 
-            for key, value in kwargs.iteritems():
-                if isinstance(value, basestring):
+            for key, value in kwargs.items():
+                if isinstance(value, str):
                     kwargs[key] = value[:max_length]
 
             return func(*nargs, **kwargs)

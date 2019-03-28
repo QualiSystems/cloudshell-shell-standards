@@ -51,7 +51,7 @@ class ResourceNode(object):
         """Add sub resource
         :type sub_resource: ResourceNode
         """
-        sub_resource.relative_address.add_parent_address(self)
+        sub_resource.relative_address.add_parent_address(self.relative_address)
         self.child_resources.append(sub_resource)
 
 
