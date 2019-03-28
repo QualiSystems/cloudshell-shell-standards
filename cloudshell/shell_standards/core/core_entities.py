@@ -83,18 +83,18 @@ class RelativeAddress(object):
             Validate index
             :type node: RelativeAddress
             """
-            instance_list = self._address_dict.get(node._prefix, {}).get(node._native_index, [])
+            instance_list = self._address_dict.get(node._prefix, {}).get(node.native_index, [])
             if node in instance_list and len(instance_list) > 1:
-                return self._generate_index(node._native_index, instance_list.index(node))
+                return self._generate_index(node.native_index, instance_list.index(node))
             else:
-                return node._native_index
+                return node.native_index
 
         def register(self, node):
             """
             Register node
             :type node: RelativeAddress
             """
-            self._address_dict[node._prefix][node._native_index].append(node)
+            self._address_dict[node._prefix][node.native_index].append(node)
 
     def __init__(self, index, prefix='', parent_node=None):
         """
@@ -106,7 +106,7 @@ class RelativeAddress(object):
         self.__parent_node = None
         self.__index_validator = RelativeAddress.IndexValidator()
 
-        self._native_index = index
+        self.native_index = index
         self._prefix = prefix
         self._parent_node = parent_node
 
@@ -119,7 +119,11 @@ class RelativeAddress(object):
         if self._parent_node and self._parent_node.__index_validator:
             return self._parent_node.__index_validator.get_valid(self)
         else:
-            return self._native_index
+            return self.native_index
+
+    @index.setter
+    def index(self, value):
+        self.native_index = value
 
     @cached_property
     def _full_address(self):

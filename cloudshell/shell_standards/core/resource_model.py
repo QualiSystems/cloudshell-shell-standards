@@ -10,7 +10,6 @@ class ResourceNode(object):
 
     def __init__(self, index, prefix, name=None, unique_id=None):
         """
-
         :param str name:
         :param str unique_id:
         """
@@ -30,7 +29,10 @@ class ResourceNode(object):
 
     @abstractmethod
     def _gen_name(self):
-        pass
+        """
+        Generates resource name
+        """
+        raise NotImplemented
 
     @property
     def unique_identifier(self):
@@ -39,11 +41,15 @@ class ResourceNode(object):
         return self._gen_unique_id()
 
     def _gen_unique_id(self):
-        return hash('{}+{}'.format(self.relative_address, self.name))
+        """
+        Generates unique id
+        :rtype: str
+        """
+        return str(hash('{}+{}'.format(self.relative_address, self.name)))
 
-    def add_sub_resource(self, sub_resource):
+    def _add_sub_resource(self, sub_resource):
         """Add sub resource
-        :type sub_resource: AbstractResource
+        :type sub_resource: ResourceNode
         """
         sub_resource.relative_address.add_parent_address(self)
         self.child_resources.append(sub_resource)
@@ -79,7 +85,9 @@ class ResourceAttribute(AttributeModel):
         self.namespace_attribute = namespace_attribute
 
     def attribute_name(self, instance):
-        """Generate attribute name for specified prefix"""
+        """Generate attribute name for the specified prefix
+        :param NamespaceAttributeContainer instance:
+        """
         return '{}.{}'.format(getattr(instance, self.namespace_attribute), self.name)
 
 
@@ -95,17 +103,19 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
         self.resource_model = self.RESOURCE_MODEL
 
     def _gen_name(self):
+        """Generate resource name"""
         if self.NAME_TEMPLATE:
             return self.NAME_TEMPLATE.format(self.relative_address.index)
         raise Exception('NAME_TEMPLATE is empty')
 
-    def add_sub_resource_with_type_restrictions(self, sub_resource, allowed_types):
+    def _add_sub_resource_with_type_restrictions(self, sub_resource, allowed_types):
         """
-        :type sub_resource: AbstractResource
-        :type allowed_types: tuple
+        Register child resource which in the list of allowed types
+        :param AbstractResource sub_resource: Registered resource
+        :param collections.Iterable allowed_types: Allowed types
         """
-        if isinstance(sub_resource, allowed_types):
-            self.add_sub_resource(sub_resource)
+        if isinstance(sub_resource, tuple(allowed_types)):
+            self._add_sub_resource(sub_resource)
         else:
             raise Exception('Class {} not allowed to connect to {}'.format(sub_resource.__class__.__name__,
                                                                            self.__class__.__name__))
