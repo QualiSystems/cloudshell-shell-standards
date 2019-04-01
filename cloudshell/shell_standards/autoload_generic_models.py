@@ -1,9 +1,13 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import cloudshell.shell_standards.attribute_names as attribute_names
-from cloudshell.shell_standards.core.resource_model import AbstractResource, ResourceAttribute
+from cloudshell.shell_standards.core.autoload.resource_model import AbstractResource, ResourceAttribute
 
 
 class GenericResource(AbstractResource):
-    __RESOURCE_MODEL = 'GenericResource'
+    _RESOURCE_MODEL = 'GenericResource'
+    _SUPPORTED_FAMILY_NAMES = []
 
     # Attributes
     contact_name = ResourceAttribute(attribute_names.CONTACT_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
@@ -14,6 +18,10 @@ class GenericResource(AbstractResource):
     vendor = ResourceAttribute(attribute_names.VENDOR, ResourceAttribute.NAMESPACE.FAMILY_NAME)
 
     def __init__(self, resource_name, shell_name, family_name):
+        if family_name not in self._SUPPORTED_FAMILY_NAMES:
+            raise Exception('Not supported family name {}. Family name should be one of: {}'.format(family_name,
+                                                                                                    ', '.join(
+                                                                                                        self._SUPPORTED_FAMILY_NAMES)))
         super().__init__(None, shell_name, name=resource_name, family_name=family_name)
 
     def connect_chassis(self, chassis):
@@ -125,7 +133,7 @@ class GenericPort(AbstractResource):
     port_description = ResourceAttribute(attribute_names.PORT_DESCRIPTION, ResourceAttribute.NAMESPACE.SHELL_NAME)
 
 
-class BaseGenericNetworkPort(GenericPort):
+class GenericNetworkPort(GenericPort):
     # Attributes
     auto_negotiation = ResourceAttribute(attribute_names.AUTO_NEGOTIATION, ResourceAttribute.NAMESPACE.SHELL_NAME)
     bandwidth = ResourceAttribute(attribute_names.BANDWIDTH, ResourceAttribute.NAMESPACE.SHELL_NAME, 0)

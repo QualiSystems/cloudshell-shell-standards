@@ -3,7 +3,7 @@
 from cloudshell.shell.core.driver_context import AutoLoadDetails, AutoLoadAttribute, AutoLoadResource
 
 
-class DetailsBuilder(object):
+class AutoloadDetailsBuilder(object):
 
     @staticmethod
     def build_details(resource):
@@ -20,7 +20,7 @@ class DetailsBuilder(object):
                                             resource.attributes.items()]
                                            )
         for child_resource in resource.extract_sub_resources():
-            child_details = DetailsBuilder.build_details(child_resource)
+            child_details = AutoloadDetailsBuilder.build_details(child_resource)
             autoload_details.resources.extend(child_details.resources)
             autoload_details.attributes.extend(child_details.attributes)
         return autoload_details

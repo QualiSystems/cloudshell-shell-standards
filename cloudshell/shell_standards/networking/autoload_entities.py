@@ -1,15 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import cloudshell.shell_standards.attribute as attributes
-import cloudshell.shell_standards.family_types as family_types
-from cloudshell.shell_standards.generic_models import BaseGenericNetworkPort as GenericPort
-from cloudshell.shell_standards.generic_models import GenericChassis, GenericModule, \
-    GenericSubModule, GenericPowerPort, GenericPortChannel, BasePhysicalResource
+from cloudshell.shell_standards.autoload_generic_models import GenericResource, GenericChassis, GenericModule, \
+    GenericSubModule, GenericNetworkPort, GenericPowerPort, GenericPortChannel
+from cloudshell.shell_standards.core.autoload.resource_model import ResourceAttribute
+import cloudshell.shell_standards.attribute_names as attribute_names
 
 __all__ = ['GenericResource', 'GenericChassis', 'GenericModule', 'GenericSubModule',
-           'GenericPortChannel', 'GenericPowerPort', 'GenericPort']
+           'GenericPortChannel', 'GenericPowerPort', 'GenericNetworkPort']
 
 
-class GenericResource(BasePhysicalResource):
-    AVAILABLE_CS_FAMILY_TYPES = [family_types.SWITCH, family_types.ROUTER, family_types.WIRELESS_CONTROLLER]
-    model_name = ResourceAttribute(ResourceAttribute.LVL.CS_FAMILY_TYPE, ResourceAttribute.NAME.MODEL_NAME)
+class NetworkingResource(GenericResource):
+    _SUPPORTED_FAMILY_NAMES = ['CS_Switch', 'CS_Router', 'CS_WirelessController']
+    model_name = ResourceAttribute(attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)

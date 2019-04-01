@@ -1,6 +1,10 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from abc import abstractmethod
 
-from cloudshell.shell_standards.core.core_entities import InstanceAttribute, RelativeAddress, AttributeContainer, \
+from cloudshell.shell_standards.core.autoload.core_entities import InstanceAttribute, RelativeAddress, \
+    AttributeContainer, \
     AttributeModel
 
 
@@ -59,6 +63,7 @@ class ResourceNode(object):
 
 
 class NamespaceAttributeContainer(AttributeContainer):
+
     def __init__(self, shell_name, family_name):
         """
         Attribute container with defined attribute levels used by ResourceAttribute

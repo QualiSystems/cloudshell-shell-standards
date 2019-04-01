@@ -1,24 +1,42 @@
-class ROResourceAttr(object):
-    class LVL(object):
-        NAMESPACE = 'namespace_prefix'
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
-    def __init__(self, prefix_attr, name, default=None):
-        self.prefix_attr = prefix_attr
+
+class ResourceAttrRO(object):
+    class NAMESPACE(object):
+        SHELL_NAME = 'shell_name'
+        FAMILY_NAME = 'family_name'
+
+    def __init__(self, name, namespace, default=None):
+        """
+        :param str name:
+        :param str namespace:
+        :param str default:
+        """
         self.name = name
+        self.namespace = namespace
         self.default = default
 
     def get_key(self, instance):
-        return '{}.{}'.format(getattr(instance, self.prefix_attr), self.name)
+        """
+        :param GenericConfigContainer instance:
+        :rtype: str
+        """
+        return '{}.{}'.format(getattr(instance, self.namespace), self.name)
 
     def __get__(self, instance, owner):
+        """
+        :param GenericConfigContainer instance:
+        :rtype: str
+        """
         if instance is None:
             return self
 
         return instance.attributes.get(self.get_key(instance), self.default)
 
 
-class BaseGenericResource(object):
-    def __init__(self, shell_name=None, name=None, fullname=None, address=None, family=None,
+class GenericConfigContainer(object):
+    def __init__(self, shell_name=None, name=None, fullname=None, address=None, family_name=None,
                  attributes=None, supported_os=None):
         """Init method
 
@@ -33,7 +51,7 @@ class BaseGenericResource(object):
         self.supported_os = supported_os or []
         self.fullname = fullname
         self.address = address  # The IP address of the resource
-        self.family = family  # The resource family
+        self.family_name = family_name  # The resource family
         self.namespace_prefix = '{}'.format(self.shell_name)
 
         if not shell_name:
@@ -46,7 +64,7 @@ class BaseGenericResource(object):
         :param str shell_name: Shell Name
         :param list supported_os: list of supported OS
         :param cloudshell.shell.core.driver_context.ResourceCommandContext context:
-        :rtype: BaseGenericResource
+        :rtype: GenericConfigContainer
         """
 
         return cls(
@@ -54,7 +72,7 @@ class BaseGenericResource(object):
             name=context.resource.name,
             fullname=context.resource.fullname,
             address=context.resource.address,
-            family=context.resource.family,
+            family_name=context.resource.family,
             attributes=dict(context.resource.attributes),
             supported_os=supported_os,
         )

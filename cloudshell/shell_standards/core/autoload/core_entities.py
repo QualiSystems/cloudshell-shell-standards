@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from collections import defaultdict
 
 from cloudshell.shell_standards.core.utils import attr_length_validator, cached_property
