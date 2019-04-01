@@ -164,9 +164,6 @@ class RelativeAddress(object):
         local_address = '{}{}'.format(self._prefix or '', self.index or '')
         return local_address
 
-    def add_parent_address(self, parent_node):
-        self._parent_node = parent_node
-
     def to_string(self):
         return self._full_address
 

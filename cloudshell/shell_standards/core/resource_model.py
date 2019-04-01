@@ -18,7 +18,7 @@ class ResourceNode(object):
 
         self._name = name
         self._unique_identifier = unique_id
-        self.child_resources = []
+        self._child_resources = []
 
     @property
     def name(self):
@@ -51,8 +51,11 @@ class ResourceNode(object):
         """Add sub resource
         :type sub_resource: ResourceNode
         """
-        sub_resource.relative_address.add_parent_address(self.relative_address)
-        self.child_resources.append(sub_resource)
+        sub_resource.relative_address._parent_node = self.relative_address
+        self._child_resources.append(sub_resource)
+
+    def extract_sub_resources(self):
+        return self._child_resources
 
 
 class NamespaceAttributeContainer(AttributeContainer):
@@ -92,20 +95,20 @@ class ResourceAttribute(AttributeModel):
 
 
 class AbstractResource(ResourceNode, NamespaceAttributeContainer):
-    RELATIVE_ADDRESS_PREFIX = ''
-    NAME_TEMPLATE = ''
-    FAMILY_NAME = ''
-    RESOURCE_MODEL = ''
+    _RELATIVE_ADDRESS_PREFIX = ''
+    _NAME_TEMPLATE = ''
+    _FAMILY_NAME = ''
+    _RESOURCE_MODEL = ''
 
     def __init__(self, index, shell_name, family_name=None, name=None, unique_id=None, ):
-        ResourceNode.__init__(self, index, self.RELATIVE_ADDRESS_PREFIX, name, unique_id)
-        NamespaceAttributeContainer.__init__(self, shell_name, family_name or self.FAMILY_NAME)
-        self.resource_model = self.RESOURCE_MODEL
+        ResourceNode.__init__(self, index, self._RELATIVE_ADDRESS_PREFIX, name, unique_id)
+        NamespaceAttributeContainer.__init__(self, shell_name, family_name or self._FAMILY_NAME)
+        self.resource_model = self._RESOURCE_MODEL
 
     def _gen_name(self):
         """Generate resource name"""
-        if self.NAME_TEMPLATE:
-            return self.NAME_TEMPLATE.format(self.relative_address.index)
+        if self._NAME_TEMPLATE:
+            return self._NAME_TEMPLATE.format(self.relative_address.index)
         raise Exception('NAME_TEMPLATE is empty')
 
     def _add_sub_resource_with_type_restrictions(self, sub_resource, allowed_types):

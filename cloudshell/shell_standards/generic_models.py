@@ -3,7 +3,7 @@ from cloudshell.shell_standards.core.resource_model import AbstractResource, Res
 
 
 class GenericResource(AbstractResource):
-    RESOURCE_MODEL = 'GenericResource'
+    __RESOURCE_MODEL = 'GenericResource'
 
     # Attributes
     contact_name = ResourceAttribute(attribute_names.CONTACT_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
@@ -25,10 +25,10 @@ class GenericResource(AbstractResource):
 
 
 class GenericChassis(AbstractResource):
-    RELATIVE_ADDRESS_PREFIX = 'CH'
-    NAME_TEMPLATE = 'Chassis {}'
-    FAMILY_NAME = 'CS_Chassis'
-    RESOURCE_MODEL = 'GenericChassis'
+    _RELATIVE_ADDRESS_PREFIX = 'CH'
+    _NAME_TEMPLATE = 'Chassis {}'
+    _FAMILY_NAME = 'CS_Chassis'
+    _RESOURCE_MODEL = 'GenericChassis'
 
     # Attributes
     model = ResourceAttribute(attribute_names.MODEL, ResourceAttribute.NAMESPACE.SHELL_NAME)
@@ -65,10 +65,10 @@ class GenericChassis(AbstractResource):
 
 
 class GenericModule(AbstractResource):
-    RELATIVE_ADDRESS_PREFIX = 'M'
-    NAME_TEMPLATE = 'Module {}'
-    FAMILY_NAME = 'CS_Module'
-    RESOURCE_MODEL = 'GenericModule'
+    _RELATIVE_ADDRESS_PREFIX = 'M'
+    _NAME_TEMPLATE = 'Module {}'
+    _FAMILY_NAME = 'CS_Module'
+    _RESOURCE_MODEL = 'GenericModule'
 
     # Attributes
     model = ResourceAttribute(attribute_names.MODEL, ResourceAttribute.NAMESPACE.SHELL_NAME)
@@ -91,11 +91,17 @@ class GenericModule(AbstractResource):
         self._add_sub_resource_with_type_restrictions(port, [GenericPort])
 
 
-class GenericSubModule(GenericModule):
-    RELATIVE_ADDRESS_PREFIX = 'SM'
-    NAME_TEMPLATE = 'SubModule {}'
-    FAMILY_NAME = 'CS_SubModule'
-    RESOURCE_MODEL = 'GenericSubModule'
+class GenericSubModule(AbstractResource):
+    _RELATIVE_ADDRESS_PREFIX = 'SM'
+    _NAME_TEMPLATE = 'SubModule {}'
+    _FAMILY_NAME = 'CS_SubModule'
+    _RESOURCE_MODEL = 'GenericSubModule'
+
+    # Attributes
+    model = ResourceAttribute(attribute_names.MODEL, ResourceAttribute.NAMESPACE.SHELL_NAME)
+    version = ResourceAttribute(attribute_names.VERSION, ResourceAttribute.NAMESPACE.SHELL_NAME)
+    serial_number = ResourceAttribute(attribute_names.SERIAL_NUMBER, ResourceAttribute.NAMESPACE.SHELL_NAME)
+    model_name = ResourceAttribute(attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
 
     def connect_port(self, port):
         """
@@ -106,10 +112,10 @@ class GenericSubModule(GenericModule):
 
 
 class GenericPort(AbstractResource):
-    RELATIVE_ADDRESS_PREFIX = 'P'
-    NAME_TEMPLATE = 'Port {}'
-    FAMILY_NAME = 'CS_Port'
-    RESOURCE_MODEL = 'GenericPort'
+    _RELATIVE_ADDRESS_PREFIX = 'P'
+    _NAME_TEMPLATE = 'Port {}'
+    _FAMILY_NAME = 'CS_Port'
+    _RESOURCE_MODEL = 'GenericPort'
 
     # Attributes
     adjacent = ResourceAttribute(attribute_names.ADJACENT, ResourceAttribute.NAMESPACE.SHELL_NAME)
@@ -129,10 +135,10 @@ class BaseGenericNetworkPort(GenericPort):
 
 
 class GenericPowerPort(AbstractResource):
-    RESOURCE_MODEL = 'GenericPowerPort'
-    RELATIVE_ADDRESS_PREFIX = 'PP'
-    NAME_TEMPLATE = 'Power Port {}'
-    FAMILY_NAME = 'CS_PowerPort'
+    _RESOURCE_MODEL = 'GenericPowerPort'
+    _RELATIVE_ADDRESS_PREFIX = 'PP'
+    _NAME_TEMPLATE = 'Power Port {}'
+    _FAMILY_NAME = 'CS_PowerPort'
 
     # Attributes
     model = ResourceAttribute(attribute_names.MODEL, ResourceAttribute.NAMESPACE.SHELL_NAME)
@@ -142,10 +148,10 @@ class GenericPowerPort(AbstractResource):
 
 
 class GenericPortChannel(AbstractResource):
-    RESOURCE_MODEL = 'GenericPortChannel'
-    RELATIVE_ADDRESS_PREFIX = 'PC'
-    NAME_TEMPLATE = 'Port Channel{}'
-    FAMILY_NAME = 'CS_PortChannel'
+    _RESOURCE_MODEL = 'GenericPortChannel'
+    _RELATIVE_ADDRESS_PREFIX = 'PC'
+    _NAME_TEMPLATE = 'Port Channel{}'
+    _FAMILY_NAME = 'CS_PortChannel'
 
     # Attributes
     associated_ports = ResourceAttribute(attribute_names.ASSOCIATED_PORTS, ResourceAttribute.NAMESPACE.SHELL_NAME)
