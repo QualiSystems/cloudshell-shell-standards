@@ -3,7 +3,7 @@
 
 import cloudshell.shell_standards.attribute_names as attribute_names
 from cloudshell.shell_standards.core.autoload.resource_model import AbstractResource, ResourceAttribute
-from cloudshell.shell_standards.exceptions import ShellModelException
+from cloudshell.shell_standards.exceptions import ResourceModelException
 
 
 class GenericResource(AbstractResource):
@@ -20,7 +20,7 @@ class GenericResource(AbstractResource):
 
     def __init__(self, resource_name, shell_name, family_name):
         if family_name not in self._SUPPORTED_FAMILY_NAMES:
-            raise ShellModelException('Not supported family name {}. Family name should be one of: {}'.format(family_name,
+            raise ResourceModelException('Not supported family name {}. Family name should be one of: {}'.format(family_name,
                                                                                                     ', '.join(
                                                                                                         self._SUPPORTED_FAMILY_NAMES)))
         super().__init__(None, shell_name, name=resource_name, family_name=family_name)

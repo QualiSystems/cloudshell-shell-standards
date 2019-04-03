@@ -1,2 +1,6 @@
-class ShellModelException(Exception):
+class ResourceModelException(Exception):
+    pass
+
+
+class ResourceConfigException(Exception):
     pass
