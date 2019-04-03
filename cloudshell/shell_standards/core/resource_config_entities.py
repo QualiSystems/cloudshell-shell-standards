@@ -19,14 +19,14 @@ class ResourceAttrRO(object):
 
     def get_key(self, instance):
         """
-        :param GenericConfigContainer instance:
+        :param GenericResourceConfig instance:
         :rtype: str
         """
         return '{}.{}'.format(getattr(instance, self.namespace), self.name)
 
     def __get__(self, instance, owner):
         """
-        :param GenericConfigContainer instance:
+        :param GenericResourceConfig instance:
         :rtype: str
         """
         if instance is None:
@@ -35,7 +35,7 @@ class ResourceAttrRO(object):
         return instance.attributes.get(self.get_key(instance), self.default)
 
 
-class GenericConfigContainer(object):
+class GenericResourceConfig(object):
     def __init__(self, shell_name=None, name=None, fullname=None, address=None, family_name=None,
                  attributes=None, supported_os=None):
         """Init method
@@ -64,7 +64,7 @@ class GenericConfigContainer(object):
         :param str shell_name: Shell Name
         :param list supported_os: list of supported OS
         :param cloudshell.shell.core.driver_context.ResourceCommandContext context:
-        :rtype: GenericConfigContainer
+        :rtype: GenericResourceConfig
         """
 
         return cls(
