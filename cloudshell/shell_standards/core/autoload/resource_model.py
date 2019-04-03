@@ -6,6 +6,7 @@ from abc import abstractmethod
 from cloudshell.shell_standards.core.autoload.core_entities import InstanceAttribute, RelativeAddress, \
     AttributeContainer, \
     AttributeModel
+from cloudshell.shell_standards.exceptions import ShellModelException
 
 
 class ResourceNode(object):
@@ -114,7 +115,7 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
         """Generate resource name"""
         if self._NAME_TEMPLATE:
             return self._NAME_TEMPLATE.format(self.relative_address.index)
-        raise Exception('NAME_TEMPLATE is empty')
+        raise ShellModelException('NAME_TEMPLATE is empty')
 
     def _add_sub_resource_with_type_restrictions(self, sub_resource, allowed_types):
         """
@@ -125,5 +126,5 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
         if isinstance(sub_resource, tuple(allowed_types)):
             self._add_sub_resource(sub_resource)
         else:
-            raise Exception('Class {} not allowed to connect to {}'.format(sub_resource.__class__.__name__,
+            raise ShellModelException('Class {} not allowed to connect to {}'.format(sub_resource.__class__.__name__,
                                                                            self.__class__.__name__))
