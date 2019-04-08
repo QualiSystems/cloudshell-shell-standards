@@ -1,8 +1,8 @@
 from cloudshell.shell_standards import attribute_names
-from cloudshell.shell_standards.core.resource_config_entities import ResourceAttrRO
+from cloudshell.shell_standards.core.resource_config_entities import ResourceAttrRO, GenericResourceConfig
 
 
-class GenericSnmpConfig:
+class GenericSnmpConfig(GenericResourceConfig):
     snmp_read_community = ResourceAttrRO(attribute_names.SNMP_READ_COMMUNITY, ResourceAttrRO.NAMESPACE.SHELL_NAME)
     snmp_write_community = ResourceAttrRO(attribute_names.SNMP_WRITE_COMMUNITY, ResourceAttrRO.NAMESPACE.SHELL_NAME)
     snmp_v3_user = ResourceAttrRO(attribute_names.SNMP_V3_USER, ResourceAttrRO.NAMESPACE.SHELL_NAME)
@@ -16,7 +16,7 @@ class GenericSnmpConfig:
     disable_snmp = ResourceAttrRO(attribute_names.DISABLE_SNMP, ResourceAttrRO.NAMESPACE.SHELL_NAME)
 
 
-class GenericCLIConfig:
+class GenericCLIConfig(GenericResourceConfig):
     user = ResourceAttrRO(attribute_names.USER, ResourceAttrRO.NAMESPACE.SHELL_NAME)
     password = ResourceAttrRO(attribute_names.PASSWORD, ResourceAttrRO.NAMESPACE.SHELL_NAME)
     enable_password = ResourceAttrRO(attribute_names.ENABLE_PASSWORD, ResourceAttrRO.NAMESPACE.SHELL_NAME)
@@ -26,7 +26,7 @@ class GenericCLIConfig:
                                                 ResourceAttrRO.NAMESPACE.SHELL_NAME)
 
 
-class GenericConsoleServerConfig:
+class GenericConsoleServerConfig(GenericResourceConfig):
     console_server_ip_address = ResourceAttrRO(attribute_names.CONSOLE_SERVER_IP_ADDRESS,
                                                ResourceAttrRO.NAMESPACE.SHELL_NAME)
     console_user = ResourceAttrRO(attribute_names.CONSOLE_USER, ResourceAttrRO.NAMESPACE.SHELL_NAME)
@@ -34,7 +34,7 @@ class GenericConsoleServerConfig:
     console_password = ResourceAttrRO(attribute_names.CONSOLE_PASSWORD, ResourceAttrRO.NAMESPACE.SHELL_NAME)
 
 
-class GenericBackupConfig:
+class GenericBackupConfig(GenericResourceConfig):
     backup_location = ResourceAttrRO(attribute_names.BACKUP_LOCATION, ResourceAttrRO.NAMESPACE.SHELL_NAME)
     backup_type = ResourceAttrRO(attribute_names.BACKUP_TYPE, ResourceAttrRO.NAMESPACE.SHELL_NAME)
     backup_user = ResourceAttrRO(attribute_names.BACKUP_USER, ResourceAttrRO.NAMESPACE.SHELL_NAME)
