@@ -24,9 +24,3 @@ def attr_length_validator(max_length):
         return inner
 
     return decorator_func
-
-
-class cached_property(property):
-    @functools.lru_cache()
-    def __get__(self, obj, type=None):
-        return super(cached_property, self).__get__(obj, type)

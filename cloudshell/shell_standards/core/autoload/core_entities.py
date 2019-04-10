@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import functools
 from collections import defaultdict
 
-from cloudshell.shell_standards.core.utils import attr_length_validator, cached_property
+from cloudshell.shell_standards.core.utils import attr_length_validator
 
 
 class AttributeContainer(object):
@@ -113,7 +113,8 @@ class RelativeAddress(object):
         self._prefix = prefix
         self._parent_node = parent_node
 
-    @cached_property
+    @property
+    @functools.lru_cache()
     def index(self):
         """
         Validated index
@@ -128,7 +129,8 @@ class RelativeAddress(object):
     def index(self, value):
         self.native_index = value
 
-    @cached_property
+    @property
+    @functools.lru_cache()
     def _full_address(self):
         """
         Relative address
