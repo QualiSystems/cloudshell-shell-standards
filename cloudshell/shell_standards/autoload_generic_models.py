@@ -8,7 +8,7 @@ from cloudshell.shell_standards.exceptions import ResourceModelException
 
 class GenericResource(AbstractResource):
     _RESOURCE_MODEL = 'GenericResource'
-    _SUPPORTED_FAMILY_NAMES = []
+    SUPPORTED_FAMILY_NAMES = []
 
     # Attributes
     contact_name = ResourceAttribute(attribute_names.CONTACT_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
@@ -19,10 +19,11 @@ class GenericResource(AbstractResource):
     vendor = ResourceAttribute(attribute_names.VENDOR, ResourceAttribute.NAMESPACE.FAMILY_NAME)
 
     def __init__(self, resource_name, shell_name, family_name):
-        if family_name not in self._SUPPORTED_FAMILY_NAMES:
-            raise ResourceModelException('Not supported family name {}. Family name should be one of: {}'.format(family_name,
-                                                                                                    ', '.join(
-                                                                                                        self._SUPPORTED_FAMILY_NAMES)))
+        if family_name not in self.SUPPORTED_FAMILY_NAMES:
+            raise ResourceModelException(
+                'Not supported family name {}. Family name should be one of: {}'.format(family_name,
+                                                                                        ', '.join(
+                                                                                            self.SUPPORTED_FAMILY_NAMES)))
         super().__init__(None, shell_name, name=resource_name, family_name=family_name)
 
     def connect_chassis(self, chassis):
