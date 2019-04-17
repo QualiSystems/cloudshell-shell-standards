@@ -1,12 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from abc import abstractmethod
 
 import cloudshell.shell_standards.attribute_names as attribute_names
 from cloudshell.shell_standards.core.autoload.resource_model import AbstractResource, ResourceAttribute
+from cloudshell.shell_standards.core.autoload.utils import AutoloadDetailsBuilder
 from cloudshell.shell_standards.exceptions import ResourceModelException
 
 
-class GenericResource(AbstractResource):
+class GenericResourceModel(AbstractResource):
     _RESOURCE_MODEL = 'GenericResource'
     SUPPORTED_FAMILY_NAMES = []
 
@@ -26,12 +28,28 @@ class GenericResource(AbstractResource):
                                                                                             self.SUPPORTED_FAMILY_NAMES)))
         super().__init__(None, shell_name, name=resource_name, family_name=family_name)
 
+    @property
+    @abstractmethod
+    def Entities(self):
+        pass
+
     def connect_chassis(self, chassis):
         """
         Connect chassis sub resource
         :param AbstractResource chassis:
         """
         self._add_sub_resource_with_type_restrictions(chassis, [GenericChassis])
+
+    def build(self):
+        return AutoloadDetailsBuilder(self).build_details()
+
+    @classmethod
+    def from_resource_config(cls, resource_config):
+        """
+        :param cloudshell.shell_standards.core.resource_config_entities.GenericResourceConfig resource_config:
+        :return:
+        """
+        return cls(resource_config.name, resource_config.shell_name, resource_config.family_name)
 
 
 class GenericChassis(AbstractResource):

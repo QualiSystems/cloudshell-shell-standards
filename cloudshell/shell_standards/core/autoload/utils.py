@@ -4,12 +4,18 @@ from cloudshell.shell.core.driver_context import AutoLoadDetails, AutoLoadAttrib
 
 
 class AutoloadDetailsBuilder(object):
+    def __init__(self, resource_model):
+        """
+        :param cloudshell.shell_standards.autoload_generic_models.GenericResourceModel resource_model:
+        """
+        self.resource_model = resource_model
 
-    @staticmethod
-    def build_details(resource):
+    def _build_branch(self, resource):
         """
         :type resource: cloudshell.shell_standards.core.resource_model.AbstractResource
+        :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
         """
+        resource.shell_name = resource.shell_name or self.resource_model.shell_name
         autoload_details = AutoLoadDetails([AutoLoadResource(model=resource.resource_model,
                                                              name=resource.name,
                                                              relative_address=resource.relative_address,
@@ -20,7 +26,14 @@ class AutoloadDetailsBuilder(object):
                                             resource.attributes.items()]
                                            )
         for child_resource in resource.extract_sub_resources():
-            child_details = AutoloadDetailsBuilder.build_details(child_resource)
+            child_details = self._build_branch(child_resource)
             autoload_details.resources.extend(child_details.resources)
             autoload_details.attributes.extend(child_details.attributes)
         return autoload_details
+
+    def build_details(self):
+        """
+        Build resource details
+        :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
+        """
+        return self._build_branch(self.resource_model)
