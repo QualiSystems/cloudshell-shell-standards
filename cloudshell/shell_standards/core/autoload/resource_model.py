@@ -106,7 +106,7 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
     _FAMILY_NAME = ''
     _RESOURCE_MODEL = ''
 
-    def __init__(self, index, shell_name, family_name=None, name=None, unique_id=None, ):
+    def __init__(self, index, shell_name=None, family_name=None, name=None, unique_id=None):
         ResourceNode.__init__(self, index, self._RELATIVE_ADDRESS_PREFIX, name, unique_id)
         NamespaceAttributeContainer.__init__(self, shell_name, family_name or self._FAMILY_NAME)
         self.resource_model = self._RESOURCE_MODEL
