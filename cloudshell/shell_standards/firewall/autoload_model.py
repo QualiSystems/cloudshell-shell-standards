@@ -11,7 +11,7 @@ class FirewallResourceModel(GenericResourceModel):
     SUPPORTED_FAMILY_NAMES = ['CS_Firewall']
 
     @property
-    def Entities(self):
+    def entities(self):
         class _FirewallEntities:
             Chassis = GenericChassis
             Module = GenericModule

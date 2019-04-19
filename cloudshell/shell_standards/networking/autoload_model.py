@@ -19,7 +19,7 @@ class NetworkingResourceModel(GenericResourceModel):
     model_name = ResourceAttribute(attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
 
     @property
-    def Entities(self):
+    def entities(self):
         class _NetworkingEntities:
             Chassis = GenericChassis
             Module = GenericModule

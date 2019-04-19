@@ -30,7 +30,7 @@ class GenericResourceModel(AbstractResource):
 
     @property
     @abstractmethod
-    def Entities(self):
+    def entities(self):
         pass
 
     def connect_chassis(self, chassis):
@@ -39,6 +39,13 @@ class GenericResourceModel(AbstractResource):
         :param AbstractResource chassis:
         """
         self._add_sub_resource_with_type_restrictions(chassis, [GenericChassis])
+
+    def connect_port_channel(self, port_channel):
+        """
+        Connect port channel sub resource
+        :param AbstractResource port_channel:
+        """
+        self._add_sub_resource_with_type_restrictions(port_channel, [GenericPortChannel])
 
     def build(self):
         return AutoloadDetailsBuilder(self).build_details()
@@ -83,13 +90,6 @@ class GenericChassis(AbstractResource):
         :param AbstractResource port:
         """
         self._add_sub_resource_with_type_restrictions(port, [GenericPort])
-
-    def connect_port_channel(self, port_channel):
-        """
-        Connect port channel sub resource
-        :param AbstractResource port_channel:
-        """
-        self._add_sub_resource_with_type_restrictions(port_channel, [GenericPortChannel])
 
 
 class GenericModule(AbstractResource):
