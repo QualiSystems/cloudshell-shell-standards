@@ -56,7 +56,7 @@ class ResourceNode(ABC):
         """Add sub resource
         :type sub_resource: ResourceNode
         """
-        sub_resource.relative_address._parent_node = self.relative_address
+        sub_resource.relative_address.parent_node = self.relative_address
         self._child_resources.append(sub_resource)
 
     def extract_sub_resources(self):
@@ -71,7 +71,7 @@ class NamespaceAttributeContainer(AttributeContainer):
         :param shell_name:
         :param family_name:
         """
-        super().__init__()
+        super(NamespaceAttributeContainer, self).__init__()
         self.family_name = family_name
         self.shell_name = shell_name
 
@@ -90,7 +90,8 @@ class ResourceAttribute(AttributeModel):
         :param namespace_attribute:  Attribute name prefix, defined as Level, NAMESPACE.SHELL_NAME or NAMESPACE.FAMILY_TYPE
         :param default_value: Defailt attribute value
         """
-        super().__init__(name, default_value)
+        # super(ResourceAttribute).__init__(name, default_value)
+        super(ResourceAttribute, self).__init__(name, default_value)
         self.namespace_attribute = namespace_attribute
 
     def attribute_name(self, instance):

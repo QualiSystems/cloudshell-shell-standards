@@ -21,12 +21,19 @@ class GenericResourceModel(AbstractResource):
     vendor = ResourceAttribute(attribute_names.VENDOR, ResourceAttribute.NAMESPACE.FAMILY_NAME)
 
     def __init__(self, resource_name, shell_name, family_name):
+
         if family_name not in self.SUPPORTED_FAMILY_NAMES:
             raise ResourceModelException(
                 'Not supported family name {}. Family name should be one of: {}'.format(family_name,
                                                                                         ', '.join(
                                                                                             self.SUPPORTED_FAMILY_NAMES)))
-        super().__init__(None, shell_name, name=resource_name, family_name=family_name)
+        # super().__init__(None, shell_name, name=resource_name, family_name=family_name)
+        super(GenericResourceModel, self).__init__(None, shell_name, name=resource_name, family_name=family_name)
+
+    @property
+    @abstractmethod
+    def entities(self):
+        pass
 
     @property
     @abstractmethod
