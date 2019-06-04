@@ -3,10 +3,10 @@
 
 from abc import abstractmethod, ABC
 
-from cloudshell.shell_standards.core.autoload.core_entities import InstanceAttribute, RelativeAddress, \
+from cloudshell.shell.standards.core.autoload.core_entities import InstanceAttribute, RelativeAddress, \
     AttributeContainer, \
     AttributeModel
-from cloudshell.shell_standards.exceptions import ResourceModelException
+from cloudshell.shell.standards.exceptions import ResourceModelException
 
 
 class ResourceNode(ABC):

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 
-from cloudshell.shell_standards.core.utils import attr_length_validator
+from cloudshell.shell.standards.core.utils import attr_length_validator
 
 
 class AttributeContainer(object):
