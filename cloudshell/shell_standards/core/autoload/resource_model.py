@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 from cloudshell.shell_standards.core.autoload.core_entities import InstanceAttribute, RelativeAddress, \
     AttributeContainer, \
@@ -9,7 +9,7 @@ from cloudshell.shell_standards.core.autoload.core_entities import InstanceAttri
 from cloudshell.shell_standards.exceptions import ResourceModelException
 
 
-class ResourceNode(object):
+class ResourceNode(ABC):
     _name = InstanceAttribute()
     _unique_identifier = InstanceAttribute()
 

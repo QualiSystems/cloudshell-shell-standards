@@ -35,6 +35,11 @@ class GenericResourceModel(AbstractResource):
     def entities(self):
         pass
 
+    @property
+    @abstractmethod
+    def entities(self):
+        pass
+
     def connect_chassis(self, chassis):
         """
         Connect chassis sub resource
