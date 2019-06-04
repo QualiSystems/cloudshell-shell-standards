@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import functools
 from collections import defaultdict
 
 from cloudshell.shell_standards.core.utils import attr_length_validator
@@ -111,17 +110,16 @@ class RelativeAddress(object):
 
         self.native_index = index
         self._prefix = prefix
-        self._parent_node = parent_node
+        self.parent_node = parent_node
 
     @property
-    @functools.lru_cache()
     def index(self):
         """
         Validated index
         :rtype: str
         """
-        if self._parent_node and self._parent_node.__index_validator:
-            return self._parent_node.__index_validator.get_valid(self)
+        if self.parent_node and self.parent_node.__index_validator:
+            return self.parent_node.__index_validator.get_valid(self)
         else:
             return self.native_index
 
@@ -130,14 +128,13 @@ class RelativeAddress(object):
         self.native_index = value
 
     @property
-    @functools.lru_cache()
     def _full_address(self):
         """
         Relative address
         :rtype: str
         """
-        if self._parent_node and self._parent_node._full_address:
-            return '{}{}{}'.format(self._parent_node._full_address, self.ADDRESS_SEPARATOR,
+        if self.parent_node and self.parent_node._full_address:
+            return '{}{}{}'.format(self.parent_node._full_address, self.ADDRESS_SEPARATOR,
                                    self._local_address)
         elif self.index:
             return self._local_address
@@ -178,24 +175,3 @@ class RelativeAddress(object):
     def __repr__(self):
         self.__str__()
 
-
-if __name__ == '__main__':
-    resourcee = RelativeAddress(None, None)
-    chassis = RelativeAddress(1, 'CH', resourcee)
-    module1 = RelativeAddress('dsd', 'M', chassis)
-    module2 = RelativeAddress('sd', 'M', chassis)
-    module3 = RelativeAddress('sd', 'M', chassis)
-    port1 = RelativeAddress('ff', 'P', module1)
-    port2 = RelativeAddress('ff', 'P', module2)
-    port3 = RelativeAddress('ff', 'P', module2)
-    port4 = RelativeAddress('hh', 'P', module3)
-    port5 = RelativeAddress('hh', 'P', module3)
-    print(port1)
-    print(port2)
-    print(port3)
-    print(port5)
-    print(module1)
-    print(module2)
-    print(module3)
-    print(chassis)
-    print(resourcee)
