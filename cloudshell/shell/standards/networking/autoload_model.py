@@ -9,8 +9,9 @@ __all__ = ['NetworkingResourceModel', 'GenericResourceModel', 'GenericChassis', 
            'GenericPortChannel', 'GenericPowerPort', 'GenericNetworkPort']
 
 
-class NetworkingPort(GenericNetworkPort):
-    pass
+#
+# class NetworkingPort(GenericNetworkPort):
+#     pass
 
 
 class NetworkingResourceModel(GenericResourceModel):
@@ -18,14 +19,55 @@ class NetworkingResourceModel(GenericResourceModel):
 
     model_name = ResourceAttribute(attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
 
+    class NetworkingPort(GenericNetworkPort):
+        pass
+
     @property
     def entities(self):
         class _NetworkingEntities:
             Chassis = GenericChassis
             Module = GenericModule
             SubModule = GenericSubModule
-            Port = NetworkingPort
+            Port = self.NetworkingPort
             PortChannel = GenericPortChannel
             PowerPort = GenericPowerPort
 
         return _NetworkingEntities
+
+
+class NNResourceModel(NetworkingResourceModel):
+    # SUPPORTED_FAMILY_NAMES = []
+
+    class NNPort(NetworkingResourceModel.NetworkingPort):
+        pass
+
+    @property
+    def entities(self):
+        class _NNEntities:
+            Chassis = GenericChassis
+            Module = GenericModule
+            SubModule = GenericSubModule
+            Port = self.NNPort
+            PortChannel = GenericPortChannel
+            PowerPort = GenericPowerPort
+
+        return _NNEntities
+
+
+class NNNResourceModel(NNResourceModel):
+    # SUPPORTED_FAMILY_NAMES = []
+
+    class NNNPort(NNResourceModel.NNPort):
+        pass
+
+    @property
+    def entities(self):
+        class _NNNEntities:
+            Chassis = GenericChassis
+            Module = GenericModule
+            SubModule = GenericSubModule
+            Port = self.NNNPort
+            PortChannel = GenericPortChannel
+            PowerPort = GenericPowerPort
+
+        return _NNNEntities
