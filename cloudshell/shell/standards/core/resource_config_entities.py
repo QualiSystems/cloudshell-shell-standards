@@ -35,9 +35,21 @@ class ResourceAttrRO(object):
         return instance.attributes.get(self.get_key(instance), self.default)
 
 
+class PasswordAttrRO(ResourceAttrRO):
+
+    def __get__(self, instance, owner):
+        """
+        :param GenericResourceConfig instance:
+        :rtype: str
+        """
+        if instance is None:
+            return self
+        return instance.api.DecryptPassword(instance.attributes.get(self.get_key(instance), self.default)).Value
+
+
 class GenericResourceConfig(object):
     def __init__(self, shell_name=None, name=None, fullname=None, address=None, family_name=None,
-                 attributes=None, supported_os=None):
+                 attributes=None, supported_os=None, api=None):
         """Init method
 
         :param str shell_name: Shell Name
@@ -53,17 +65,19 @@ class GenericResourceConfig(object):
         self.address = address  # The IP address of the resource
         self.family_name = family_name  # The resource family
         self.namespace_prefix = '{}'.format(self.shell_name)
+        self.api = api
 
         if not shell_name:
             raise DeprecationWarning('1gen Shells doesn\'t supported')
 
     @classmethod
-    def from_context(cls, shell_name, context, supported_os=None):
+    def from_context(cls, shell_name, context, api, supported_os=None):
         """Creates an instance of a Resource by given context
 
         :param str shell_name: Shell Name
         :param list supported_os: list of supported OS
         :param cloudshell.shell.core.driver_context.ResourceCommandContext context:
+        :param cloudshell.api.cloudshell_api.CloudShellAPISession api:
         :rtype: GenericResourceConfig
         """
 
@@ -75,4 +89,5 @@ class GenericResourceConfig(object):
             family_name=context.resource.family,
             attributes=dict(context.resource.attributes),
             supported_os=supported_os,
+            api=api,
         )
