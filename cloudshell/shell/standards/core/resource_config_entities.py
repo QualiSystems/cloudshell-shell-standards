@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from functools import lru_cache
 
 
 class ResourceAttrRO(object):
@@ -37,6 +38,15 @@ class ResourceAttrRO(object):
 
 class PasswordAttrRO(ResourceAttrRO):
 
+    @lru_cache()
+    def _decrypt_password(self, api, attr_value):
+        """
+        :param cloudshell.api.cloudshell_api.CloudShellAPISession api:
+        :param str attr_value:
+        :return:
+        """
+        return api.DecryptPassword(attr_value).Value
+
     def __get__(self, instance, owner):
         """
         :param GenericResourceConfig instance:
@@ -44,7 +54,7 @@ class PasswordAttrRO(ResourceAttrRO):
         """
         if instance is None:
             return self
-        return instance.api.DecryptPassword(instance.attributes.get(self.get_key(instance), self.default)).Value
+        return self._decrypt_password(instance.api, instance.attributes.get(self.get_key(instance)))
 
 
 class GenericResourceConfig(object):
