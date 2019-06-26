@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from functools import lru_cache
 
+from cloudshell.shell.standards.exceptions import ResourceConfigException
+
 
 class ResourceAttrRO(object):
     class NAMESPACE(object):
@@ -45,7 +47,9 @@ class PasswordAttrRO(ResourceAttrRO):
         :param str attr_value:
         :return:
         """
-        return api.DecryptPassword(attr_value).Value
+        if api:
+            return api.DecryptPassword(attr_value).Value
+        raise ResourceConfigException('Cannot decrypt password, API is not defined')
 
     def __get__(self, instance, owner):
         """
@@ -81,7 +85,7 @@ class GenericResourceConfig(object):
             raise DeprecationWarning('1gen Shells doesn\'t supported')
 
     @classmethod
-    def from_context(cls, shell_name, context, api, supported_os=None):
+    def from_context(cls, shell_name, context, api=None, supported_os=None):
         """Creates an instance of a Resource by given context
 
         :param str shell_name: Shell Name
