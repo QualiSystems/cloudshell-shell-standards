@@ -17,6 +17,7 @@ class GenericResourceModel(AbstractResource):
     system_name = ResourceAttribute(attribute_names.SYSTEM_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
     location = ResourceAttribute(attribute_names.LOCATION, ResourceAttribute.NAMESPACE.FAMILY_NAME)
     model = ResourceAttribute(attribute_names.MODEL, ResourceAttribute.NAMESPACE.FAMILY_NAME)
+    model_name = ResourceAttribute(attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
     os_version = ResourceAttribute(attribute_names.OS_VERSION, ResourceAttribute.NAMESPACE.FAMILY_NAME)
     vendor = ResourceAttribute(attribute_names.VENDOR, ResourceAttribute.NAMESPACE.FAMILY_NAME)
 
@@ -29,11 +30,6 @@ class GenericResourceModel(AbstractResource):
                                                                                             self.SUPPORTED_FAMILY_NAMES)))
         # super().__init__(None, shell_name, name=resource_name, family_name=family_name)
         super(GenericResourceModel, self).__init__(None, shell_name, name=resource_name, family_name=family_name)
-
-    @property
-    @abstractmethod
-    def entities(self):
-        pass
 
     @property
     @abstractmethod
@@ -143,30 +139,35 @@ class GenericSubModule(AbstractResource):
         Connect port sub resource
         :param AbstractResource port:
         """
-        self._add_sub_resource_with_type_restrictions(port, [GenericPort])
+        self._add_sub_resource_with_type_restrictions(port, [BasePort])
 
 
-class GenericPort(AbstractResource):
+class BasePort(AbstractResource):
     _RELATIVE_ADDRESS_PREFIX = 'P'
     _NAME_TEMPLATE = 'Port {}'
     _FAMILY_NAME = 'CS_Port'
     _RESOURCE_MODEL = 'GenericPort'
 
     # Attributes
-    adjacent = ResourceAttribute(attribute_names.ADJACENT, ResourceAttribute.NAMESPACE.SHELL_NAME)
+    model_name = ResourceAttribute(attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
     ipv4_address = ResourceAttribute(attribute_names.IPV4_ADDRESS, ResourceAttribute.NAMESPACE.SHELL_NAME)
     ipv6_address = ResourceAttribute(attribute_names.IPV6_ADDRESS, ResourceAttribute.NAMESPACE.SHELL_NAME)
     mac_address = ResourceAttribute(attribute_names.MAC_ADDRESS, ResourceAttribute.NAMESPACE.SHELL_NAME)
-    port_description = ResourceAttribute(attribute_names.PORT_DESCRIPTION, ResourceAttribute.NAMESPACE.SHELL_NAME)
 
 
-class GenericNetworkPort(GenericPort):
+class ResourcePort(BasePort):
+    port_speed = ResourceAttribute(attribute_names.PORT_SPEED, ResourceAttribute.NAMESPACE.SHELL_NAME, 0)
+
+
+class GenericPort(BasePort):
     # Attributes
+    port_description = ResourceAttribute(attribute_names.PORT_DESCRIPTION, ResourceAttribute.NAMESPACE.SHELL_NAME)
     auto_negotiation = ResourceAttribute(attribute_names.AUTO_NEGOTIATION, ResourceAttribute.NAMESPACE.SHELL_NAME)
     bandwidth = ResourceAttribute(attribute_names.BANDWIDTH, ResourceAttribute.NAMESPACE.SHELL_NAME, 0)
     duplex = ResourceAttribute(attribute_names.DUPLEX, ResourceAttribute.NAMESPACE.SHELL_NAME, 'Half')
     l2_protocol_type = ResourceAttribute(attribute_names.L2_PROTOCOL_TYPE, ResourceAttribute.NAMESPACE.SHELL_NAME)
     mtu = ResourceAttribute(attribute_names.MTU, ResourceAttribute.NAMESPACE.SHELL_NAME, 0)
+    adjacent = ResourceAttribute(attribute_names.ADJACENT, ResourceAttribute.NAMESPACE.SHELL_NAME)
 
 
 class GenericPowerPort(AbstractResource):
@@ -177,6 +178,7 @@ class GenericPowerPort(AbstractResource):
 
     # Attributes
     model = ResourceAttribute(attribute_names.MODEL, ResourceAttribute.NAMESPACE.SHELL_NAME)
+    model_name = ResourceAttribute(attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
     port_description = ResourceAttribute(attribute_names.PORT_DESCRIPTION, ResourceAttribute.NAMESPACE.SHELL_NAME)
     serial_number = ResourceAttribute(attribute_names.SERIAL_NUMBER, ResourceAttribute.NAMESPACE.SHELL_NAME)
     version = ResourceAttribute(attribute_names.VERSION, ResourceAttribute.NAMESPACE.SHELL_NAME)
@@ -189,6 +191,7 @@ class GenericPortChannel(AbstractResource):
     _FAMILY_NAME = 'CS_PortChannel'
 
     # Attributes
+    model_name = ResourceAttribute(attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME)
     associated_ports = ResourceAttribute(attribute_names.ASSOCIATED_PORTS, ResourceAttribute.NAMESPACE.SHELL_NAME)
     ipv4_address = ResourceAttribute(attribute_names.IPV4_ADDRESS, ResourceAttribute.NAMESPACE.SHELL_NAME)
     ipv6_address = ResourceAttribute(attribute_names.IPV6_ADDRESS, ResourceAttribute.NAMESPACE.SHELL_NAME)
