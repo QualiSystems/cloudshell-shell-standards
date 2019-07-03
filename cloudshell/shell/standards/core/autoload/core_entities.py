@@ -12,6 +12,31 @@ class AttributeContainer(object):
         self.attributes = {}
 
 
+class AttributeName(object):
+    def __init__(self, attribute_model, attribute_container):
+        """
+        :param AttributeModel attribute_model:
+        :param AttributeContainer attribute_container:
+        """
+        self._attribute_model = attribute_model
+        self._attribute_container = attribute_container
+
+    def to_string(self):
+        return self._attribute_model.attribute_name(self._attribute_container)
+
+    def __str__(self):
+        return self.to_string()
+
+    def __hash__(self):
+        return hash(self._attribute_model)
+
+    def __eq__(self, other):
+        """
+        :param AttributeName other:
+        """
+        return self._attribute_model == other._attribute_model
+
+
 class AttributeModel(object):
     """
     Attribute descriptor
@@ -33,7 +58,7 @@ class AttributeModel(object):
         if instance is None:
             return self
 
-        return instance.attributes.get(self.attribute_name(instance), self.default_value)
+        return instance.attributes.get(self, self.default_value)
 
     @attr_length_validator(MAX_LENGTH)
     def __set__(self, instance, value):
@@ -41,8 +66,17 @@ class AttributeModel(object):
         :type instance: AttributeContainer
         :return:
         """
-        value = value if value is not None else self.default_value
-        instance.attributes[self.attribute_name(instance)] = value
+        value = value or self.default_value
+        instance.attributes[AttributeName(self, instance)] = value
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        """
+        :param AttributeModel other:
+        """
+        return self.name == other.name
 
 
 class InstanceAttribute(object):
@@ -174,4 +208,3 @@ class RelativeAddress(object):
 
     def __repr__(self):
         self.__str__()
-

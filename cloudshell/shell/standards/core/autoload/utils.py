@@ -21,7 +21,7 @@ class AutoloadDetailsBuilder(object):
                                                              relative_address=resource.relative_address,
                                                              unique_identifier=resource.unique_identifier)],
                                            [AutoLoadAttribute(relative_address=resource.relative_address,
-                                                              attribute_name=name,
+                                                              attribute_name=str(name),
                                                               attribute_value=value) for name, value in
                                             resource.attributes.items()]
                                            )
