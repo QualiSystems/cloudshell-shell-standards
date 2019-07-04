@@ -58,7 +58,7 @@ class AttributeModel(object):
         if instance is None:
             return self
 
-        return instance.attributes.get(self, self.default_value)
+        return instance.attributes.get(AttributeName(self, instance), self.default_value)
 
     @attr_length_validator(MAX_LENGTH)
     def __set__(self, instance, value):
