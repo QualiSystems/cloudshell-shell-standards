@@ -12,7 +12,7 @@ class AutoloadDetailsBuilder(object):
 
     def _build_branch(self, resource):
         """
-        :type resource: cloudshell.shell_standards.core.resource_model.AbstractResource
+        :type resource: cloudshell.shell.standards.core.autoload.resource_model.AbstractResource
         :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
         """
         resource.shell_name = resource.shell_name or self.resource_model.shell_name

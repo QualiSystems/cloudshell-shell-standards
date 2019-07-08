@@ -176,15 +176,15 @@ class RelativeAddress(object):
             return ''
 
     @property
-    def _parent_node(self):
+    def parent_node(self):
         """
         Parent node
         :rtype: RelativeAddress
         """
         return self.__parent_node
 
-    @_parent_node.setter
-    def _parent_node(self, node):
+    @parent_node.setter
+    def parent_node(self, node):
         """
         :type node: RelativeAddress
         """
