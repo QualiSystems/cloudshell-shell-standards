@@ -64,8 +64,9 @@ class ResourceNode(ABC):
 
 
 class NamespaceAttributeContainer(AttributeContainer):
+    _RESOURCE_MODEL = ''
 
-    def __init__(self, shell_name, family_name):
+    def __init__(self, shell_name, family_name, resource_model=None):
         """
         Attribute container with defined attribute levels used by ResourceAttribute
         :param shell_name:
@@ -74,9 +75,12 @@ class NamespaceAttributeContainer(AttributeContainer):
         super(NamespaceAttributeContainer, self).__init__()
         self.family_name = family_name
         self.shell_name = shell_name
+        self.resource_model = resource_model or self._RESOURCE_MODEL
 
 
 class ResourceAttribute(AttributeModel):
+    _RESOURCE_MODEL_ATTR = 'resource_model'
+
     class NAMESPACE(object):
         """
         Attribute Levels, attributes defined in LVLDefinedAttributeContainer
@@ -98,19 +102,29 @@ class ResourceAttribute(AttributeModel):
         """Generate attribute name for the specified prefix
         :param NamespaceAttributeContainer instance:
         """
-        return '{}.{}'.format(getattr(instance, self.namespace_attribute), self.name)
+
+        if self.namespace_attribute == self.NAMESPACE.SHELL_NAME:
+            shell_name = getattr(instance, self.namespace_attribute)
+            resource_model = getattr(instance, self._RESOURCE_MODEL_ATTR)
+            if shell_name:
+                namespace = "{shell_name}.{resource_model}".format(shell_name=shell_name,
+                                                                    resource_model=resource_model.replace(" ", ""))
+            else:
+                namespace = ""
+        else:
+            namespace = getattr(instance, self.namespace_attribute)
+
+        return '{}.{}'.format(namespace, self.name)
 
 
 class AbstractResource(ResourceNode, NamespaceAttributeContainer):
     _RELATIVE_ADDRESS_PREFIX = ''
     _NAME_TEMPLATE = ''
     _FAMILY_NAME = ''
-    _RESOURCE_MODEL = ''
 
     def __init__(self, index, shell_name=None, family_name=None, name=None, unique_id=None):
         ResourceNode.__init__(self, index, self._RELATIVE_ADDRESS_PREFIX, name, unique_id)
         NamespaceAttributeContainer.__init__(self, shell_name, family_name or self._FAMILY_NAME)
-        self.resource_model = self._RESOURCE_MODEL
 
     def _gen_name(self):
         """Generate resource name"""
@@ -127,5 +141,15 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
         if isinstance(sub_resource, tuple(allowed_types)):
             self._add_sub_resource(sub_resource)
         else:
-            raise ResourceModelException('Class {} not allowed to connect to {}'.format(sub_resource.__class__.__name__,
-                                                                           self.__class__.__name__))
+            raise ResourceModelException(
+                'Class {} not allowed to connect to {}'.format(sub_resource.__class__.__name__,
+                                                               self.__class__.__name__))
+
+    @property
+    def cloudshell_model_name(self):
+        """Return the name of the CloudShell model"""
+        if self.shell_name:
+            return "{shell_name}.{resource_model}".format(shell_name=self.shell_name,
+                                                          resource_model=self.resource_model.replace(" ", ""))
+        else:
+            return self.resource_model

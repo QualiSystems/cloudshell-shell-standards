@@ -16,15 +16,20 @@ class AutoloadDetailsBuilder(object):
         :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
         """
         resource.shell_name = resource.shell_name or self.resource_model.shell_name
-        autoload_details = AutoLoadDetails([AutoLoadResource(model=resource.resource_model,
-                                                             name=resource.name,
-                                                             relative_address=resource.relative_address,
-                                                             unique_identifier=resource.unique_identifier)],
-                                           [AutoLoadAttribute(relative_address=resource.relative_address,
-                                                              attribute_name=str(name),
-                                                              attribute_value=value) for name, value in
-                                            resource.attributes.items()]
-                                           )
+        relative_address = str(resource.relative_address)
+        unique_identifier = str(resource.unique_identifier)
+
+        autoload_details = AutoLoadDetails([], [])
+
+        if relative_address:
+            autoload_details.resources = [AutoLoadResource(model=resource.cloudshell_model_name, name=resource.name,
+                                                           relative_address=relative_address,
+                                                           unique_identifier=unique_identifier)]
+
+        autoload_details.attributes = [AutoLoadAttribute(relative_address=relative_address,
+                                                         attribute_name=str(name),
+                                                         attribute_value=value) for name, value in
+                                       resource.attributes.items()]
         for child_resource in resource.extract_sub_resources():
             child_details = self._build_branch(child_resource)
             autoload_details.resources.extend(child_details.resources)
