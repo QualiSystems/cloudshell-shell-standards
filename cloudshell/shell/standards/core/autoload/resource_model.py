@@ -103,18 +103,13 @@ class ResourceAttribute(AttributeModel):
         :param NamespaceAttributeContainer instance:
         """
 
-        if self.namespace_attribute == self.NAMESPACE.SHELL_NAME:
-            shell_name = getattr(instance, self.namespace_attribute)
+        namespace = getattr(instance, self.namespace_attribute)
+        if self.namespace_attribute == self.NAMESPACE.SHELL_NAME and namespace:
             resource_model = getattr(instance, self._RESOURCE_MODEL_ATTR)
-            if shell_name:
-                namespace = "{shell_name}.{resource_model}".format(shell_name=shell_name,
-                                                                    resource_model=resource_model.replace(" ", ""))
-            else:
-                namespace = ""
-        else:
-            namespace = getattr(instance, self.namespace_attribute)
+            if resource_model:
+                namespace = ".".join((namespace, resource_model))
 
-        return '{}.{}'.format(namespace, self.name)
+        return '.'.join((namespace, self.name)) if namespace else self.name
 
 
 class AbstractResource(ResourceNode, NamespaceAttributeContainer):

@@ -28,8 +28,8 @@ class AutoloadDetailsBuilder(object):
 
         autoload_details.attributes = [AutoLoadAttribute(relative_address=relative_address,
                                                          attribute_name=str(name),
-                                                         attribute_value=value) for name, value in
-                                       resource.attributes.items()]
+                                                         attribute_value=str(value)) for name, value in
+                                       resource.attributes.items() if value is not None]
         for child_resource in resource.extract_sub_resources():
             child_details = self._build_branch(child_resource)
             autoload_details.resources.extend(child_details.resources)
