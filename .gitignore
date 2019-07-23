@@ -65,4 +65,4 @@ target/
 .project
 .pydevproject
 .DS_Store
-.isort/
+.idea/
