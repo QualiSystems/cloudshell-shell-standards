@@ -7,10 +7,13 @@ from cloudshell.shell.standards.resource_config_generic_models import (
     GenericBackupConfig,
     GenericCLIConfig,
     GenericConsoleServerConfig,
-    GenericSnmpConfig
+    GenericSnmpConfig,
 )
 
 
-class FirewallResourceConfig(GenericSnmpConfig, GenericCLIConfig,
-                             GenericConsoleServerConfig, GenericBackupConfig):
-    vrf_management_name = ResourceAttrRO(attribute_names.VRF_MANAGEMENT_NAME, ResourceAttrRO.NAMESPACE.SHELL_NAME)
+class FirewallResourceConfig(
+    GenericSnmpConfig, GenericCLIConfig, GenericConsoleServerConfig, GenericBackupConfig
+):
+    vrf_management_name = ResourceAttrRO(
+        attribute_names.VRF_MANAGEMENT_NAME, ResourceAttrRO.NAMESPACE.SHELL_NAME
+    )

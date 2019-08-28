@@ -7,8 +7,8 @@ from cloudshell.shell.standards.exceptions import ResourceConfigException
 
 class ResourceAttrRO(object):
     class NAMESPACE(object):
-        SHELL_NAME = 'shell_name'
-        FAMILY_NAME = 'family_name'
+        SHELL_NAME = "shell_name"
+        FAMILY_NAME = "family_name"
 
     def __init__(self, name, namespace, default=None):
         """
@@ -25,7 +25,7 @@ class ResourceAttrRO(object):
         :param GenericResourceConfig instance:
         :rtype: str
         """
-        return '{}.{}'.format(getattr(instance, self.namespace), self.name)
+        return "{}.{}".format(getattr(instance, self.namespace), self.name)
 
     def __get__(self, instance, owner):
         """
@@ -39,7 +39,6 @@ class ResourceAttrRO(object):
 
 
 class PasswordAttrRO(ResourceAttrRO):
-
     @lru_cache()
     def _decrypt_password(self, api, attr_value):
         """
@@ -49,7 +48,7 @@ class PasswordAttrRO(ResourceAttrRO):
         """
         if api:
             return api.DecryptPassword(attr_value).Value
-        raise ResourceConfigException('Cannot decrypt password, API is not defined')
+        raise ResourceConfigException("Cannot decrypt password, API is not defined")
 
     def __get__(self, instance, owner):
         """
@@ -58,12 +57,23 @@ class PasswordAttrRO(ResourceAttrRO):
         """
         if instance is None:
             return self
-        return self._decrypt_password(instance.api, instance.attributes.get(self.get_key(instance)))
+        return self._decrypt_password(
+            instance.api, instance.attributes.get(self.get_key(instance))
+        )
 
 
 class GenericResourceConfig(object):
-    def __init__(self, shell_name=None, name=None, fullname=None, address=None, family_name=None,
-                 attributes=None, supported_os=None, api=None):
+    def __init__(
+        self,
+        shell_name=None,
+        name=None,
+        fullname=None,
+        address=None,
+        family_name=None,
+        attributes=None,
+        supported_os=None,
+        api=None,
+    ):
         """Init method
 
         :param str shell_name: Shell Name
@@ -78,11 +88,11 @@ class GenericResourceConfig(object):
         self.fullname = fullname
         self.address = address  # The IP address of the resource
         self.family_name = family_name  # The resource family
-        self.namespace_prefix = '{}'.format(self.shell_name)
+        self.namespace_prefix = "{}".format(self.shell_name)
         self.api = api
 
         if not shell_name:
-            raise DeprecationWarning('1gen Shells doesn\'t supported')
+            raise DeprecationWarning("1gen Shells doesn't supported")
 
     @classmethod
     def from_context(cls, shell_name, context, api=None, supported_os=None):

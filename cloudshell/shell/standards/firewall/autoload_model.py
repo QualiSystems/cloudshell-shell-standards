@@ -7,15 +7,23 @@ from cloudshell.shell.standards.autoload_generic_models import (
     GenericPortChannel,
     GenericPowerPort,
     GenericResourceModel,
-    GenericSubModule
+    GenericSubModule,
 )
 
-__all__ = ['FirewallResourceModel', 'GenericResourceModel', 'GenericChassis', 'GenericModule', 'GenericSubModule',
-           'GenericPortChannel', 'GenericPowerPort', 'GenericNetworkPort']
+__all__ = [
+    "FirewallResourceModel",
+    "GenericResourceModel",
+    "GenericChassis",
+    "GenericModule",
+    "GenericSubModule",
+    "GenericPortChannel",
+    "GenericPowerPort",
+    "GenericNetworkPort",
+]
 
 
 class FirewallResourceModel(GenericResourceModel):
-    SUPPORTED_FAMILY_NAMES = ['CS_Firewall']
+    SUPPORTED_FAMILY_NAMES = ["CS_Firewall"]
 
     @property
     def entities(self):
