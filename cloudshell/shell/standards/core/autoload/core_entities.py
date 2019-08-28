@@ -41,6 +41,7 @@ class AttributeModel(object):
     """
     Attribute descriptor
     """
+
     MAX_LENGTH = 2000
 
     def __init__(self, name, default_value=None):
@@ -58,7 +59,9 @@ class AttributeModel(object):
         if instance is None:
             return self
 
-        return instance.attributes.get(AttributeName(self, instance), self.default_value)
+        return instance.attributes.get(
+            AttributeName(self, instance), self.default_value
+        )
 
     @attr_length_validator(MAX_LENGTH)
     def __set__(self, instance, value):
@@ -99,7 +102,7 @@ class InstanceAttribute(object):
 
 
 class RelativeAddress(object):
-    ADDRESS_SEPARATOR = '/'
+    ADDRESS_SEPARATOR = "/"
 
     class IndexValidator(object):
         """
@@ -112,16 +115,20 @@ class RelativeAddress(object):
         @staticmethod
         def _generate_index(index, position):
             """Generate index if needed"""
-            return '{}-{}'.format(index, position)
+            return "{}-{}".format(index, position)
 
         def get_valid(self, node):
             """
             Validate index
             :type node: RelativeAddress
             """
-            instance_list = self._address_dict.get(node._prefix, {}).get(node.native_index, [])
+            instance_list = self._address_dict.get(node._prefix, {}).get(
+                node.native_index, []
+            )
             if node in instance_list and len(instance_list) > 1:
-                return self._generate_index(node.native_index, instance_list.index(node))
+                return self._generate_index(
+                    node.native_index, instance_list.index(node)
+                )
             else:
                 return node.native_index
 
@@ -132,7 +139,7 @@ class RelativeAddress(object):
             """
             self._address_dict[node._prefix][node.native_index].append(node)
 
-    def __init__(self, index, prefix='', parent_node=None):
+    def __init__(self, index, prefix="", parent_node=None):
         """
         :type index: str
         :type prefix: str
@@ -168,12 +175,15 @@ class RelativeAddress(object):
         :rtype: str
         """
         if self.parent_node and self.parent_node._full_address:
-            return '{}{}{}'.format(self.parent_node._full_address, self.ADDRESS_SEPARATOR,
-                                   self._local_address)
+            return "{}{}{}".format(
+                self.parent_node._full_address,
+                self.ADDRESS_SEPARATOR,
+                self._local_address,
+            )
         elif self.index:
             return self._local_address
         else:
-            return ''
+            return ""
 
     @property
     def parent_node(self):
@@ -197,7 +207,7 @@ class RelativeAddress(object):
         """
         Generates local relative address
         """
-        local_address = '{}{}'.format(self._prefix or '', self.index or '')
+        local_address = "{}{}".format(self._prefix or "", self.index or "")
         return local_address
 
     def to_string(self):

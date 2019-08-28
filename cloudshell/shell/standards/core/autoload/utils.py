@@ -3,7 +3,7 @@
 from cloudshell.shell.core.driver_context import (
     AutoLoadAttribute,
     AutoLoadDetails,
-    AutoLoadResource
+    AutoLoadResource,
 )
 
 
@@ -26,14 +26,24 @@ class AutoloadDetailsBuilder(object):
         autoload_details = AutoLoadDetails([], [])
 
         if relative_address:
-            autoload_details.resources = [AutoLoadResource(model=resource.cloudshell_model_name, name=resource.name,
-                                                           relative_address=relative_address,
-                                                           unique_identifier=unique_identifier)]
+            autoload_details.resources = [
+                AutoLoadResource(
+                    model=resource.cloudshell_model_name,
+                    name=resource.name,
+                    relative_address=relative_address,
+                    unique_identifier=unique_identifier,
+                )
+            ]
 
-        autoload_details.attributes = [AutoLoadAttribute(relative_address=relative_address,
-                                                         attribute_name=str(name),
-                                                         attribute_value=str(value)) for name, value in
-                                       resource.attributes.items() if value is not None]
+        autoload_details.attributes = [
+            AutoLoadAttribute(
+                relative_address=relative_address,
+                attribute_name=str(name),
+                attribute_value=str(value),
+            )
+            for name, value in resource.attributes.items()
+            if value is not None
+        ]
         for child_resource in resource.extract_sub_resources():
             child_details = self._build_branch(child_resource)
             autoload_details.resources.extend(child_details.resources)

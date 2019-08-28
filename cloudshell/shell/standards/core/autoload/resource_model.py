@@ -7,7 +7,7 @@ from cloudshell.shell.standards.core.autoload.core_entities import (
     AttributeContainer,
     AttributeModel,
     InstanceAttribute,
-    RelativeAddress
+    RelativeAddress,
 )
 from cloudshell.shell.standards.exceptions import ResourceModelException
 
@@ -53,7 +53,7 @@ class ResourceNode(ABC):
         Generates unique id
         :rtype: str
         """
-        return str(hash('{}+{}'.format(self.relative_address, self.name)))
+        return str(hash("{}+{}".format(self.relative_address, self.name)))
 
     def _add_sub_resource(self, sub_resource):
         """Add sub resource
@@ -67,7 +67,7 @@ class ResourceNode(ABC):
 
 
 class NamespaceAttributeContainer(AttributeContainer):
-    _RESOURCE_MODEL = ''
+    _RESOURCE_MODEL = ""
 
     def __init__(self, shell_name, family_name, resource_model=None):
         """
@@ -82,14 +82,15 @@ class NamespaceAttributeContainer(AttributeContainer):
 
 
 class ResourceAttribute(AttributeModel):
-    _RESOURCE_MODEL_ATTR = 'resource_model'
+    _RESOURCE_MODEL_ATTR = "resource_model"
 
     class NAMESPACE(object):
         """
         Attribute Levels, attributes defined in LVLDefinedAttributeContainer
         """
-        SHELL_NAME = 'shell_name'
-        FAMILY_NAME = 'family_name'
+
+        SHELL_NAME = "shell_name"
+        FAMILY_NAME = "family_name"
 
     def __init__(self, name, namespace_attribute, default_value=None):
         """
@@ -112,23 +113,29 @@ class ResourceAttribute(AttributeModel):
             if resource_model:
                 namespace = ".".join((namespace, resource_model))
 
-        return '.'.join((namespace, self.name)) if namespace else self.name
+        return ".".join((namespace, self.name)) if namespace else self.name
 
 
 class AbstractResource(ResourceNode, NamespaceAttributeContainer):
-    _RELATIVE_ADDRESS_PREFIX = ''
-    _NAME_TEMPLATE = ''
-    _FAMILY_NAME = ''
+    _RELATIVE_ADDRESS_PREFIX = ""
+    _NAME_TEMPLATE = ""
+    _FAMILY_NAME = ""
 
-    def __init__(self, index, shell_name=None, family_name=None, name=None, unique_id=None):
-        ResourceNode.__init__(self, index, self._RELATIVE_ADDRESS_PREFIX, name, unique_id)
-        NamespaceAttributeContainer.__init__(self, shell_name, family_name or self._FAMILY_NAME)
+    def __init__(
+        self, index, shell_name=None, family_name=None, name=None, unique_id=None
+    ):
+        ResourceNode.__init__(
+            self, index, self._RELATIVE_ADDRESS_PREFIX, name, unique_id
+        )
+        NamespaceAttributeContainer.__init__(
+            self, shell_name, family_name or self._FAMILY_NAME
+        )
 
     def _gen_name(self):
         """Generate resource name"""
         if self._NAME_TEMPLATE:
             return self._NAME_TEMPLATE.format(self.relative_address.index)
-        raise ResourceModelException('NAME_TEMPLATE is empty')
+        raise ResourceModelException("NAME_TEMPLATE is empty")
 
     def _add_sub_resource_with_type_restrictions(self, sub_resource, allowed_types):
         """
@@ -140,14 +147,18 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
             self._add_sub_resource(sub_resource)
         else:
             raise ResourceModelException(
-                'Class {} not allowed to connect to {}'.format(sub_resource.__class__.__name__,
-                                                               self.__class__.__name__))
+                "Class {} not allowed to connect to {}".format(
+                    sub_resource.__class__.__name__, self.__class__.__name__
+                )
+            )
 
     @property
     def cloudshell_model_name(self):
         """Return the name of the CloudShell model"""
         if self.shell_name:
-            return "{shell_name}.{resource_model}".format(shell_name=self.shell_name,
-                                                          resource_model=self.resource_model.replace(" ", ""))
+            return "{shell_name}.{resource_model}".format(
+                shell_name=self.shell_name,
+                resource_model=self.resource_model.replace(" ", ""),
+            )
         else:
             return self.resource_model

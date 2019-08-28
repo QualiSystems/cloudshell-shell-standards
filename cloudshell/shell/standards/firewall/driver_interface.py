@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 
 class FirewallResourceDriverInterface(ABC):
-
     @abstractmethod
     def run_custom_command(self, context, custom_command):
         pass
@@ -16,7 +15,9 @@ class FirewallResourceDriverInterface(ABC):
         pass
 
     @abstractmethod
-    def restore(self, context, path, configuration_type, restore_method, vrf_management_name):
+    def restore(
+        self, context, path, configuration_type, restore_method, vrf_management_name
+    ):
         pass
 
     @abstractmethod
