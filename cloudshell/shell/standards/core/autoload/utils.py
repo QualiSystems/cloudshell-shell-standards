@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from cloudshell.shell.core.driver_context import AutoLoadDetails, AutoLoadResource, AutoLoadAttribute
+from cloudshell.shell.core.driver_context import (
+    AutoLoadAttribute,
+    AutoLoadDetails,
+    AutoLoadResource
+)
 
 
 class AutoloadDetailsBuilder(object):

@@ -1,7 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from cloudshell.shell.standards.autoload_generic_models import GenericResourceModel, GenericChassis, GenericModule, \
-    GenericSubModule, GenericNetworkPort, GenericPowerPort, GenericPortChannel
+from cloudshell.shell.standards.autoload_generic_models import (
+    GenericChassis,
+    GenericModule,
+    GenericNetworkPort,
+    GenericPortChannel,
+    GenericPowerPort,
+    GenericResourceModel,
+    GenericSubModule
+)
 
 __all__ = ['FirewallResourceModel', 'GenericResourceModel', 'GenericChassis', 'GenericModule', 'GenericSubModule',
            'GenericPortChannel', 'GenericPowerPort', 'GenericNetworkPort']
