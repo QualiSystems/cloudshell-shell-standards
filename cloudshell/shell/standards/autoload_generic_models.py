@@ -46,7 +46,6 @@ class GenericResourceModel(AbstractResource):
                     family_name, ", ".join(self.SUPPORTED_FAMILY_NAMES)
                 )
             )
-        # super().__init__(None, shell_name, name=resource_name, family_name=family_name)
         super(GenericResourceModel, self).__init__(
             None, shell_name, name=resource_name, family_name=family_name
         )
@@ -57,15 +56,15 @@ class GenericResourceModel(AbstractResource):
         pass
 
     def connect_chassis(self, chassis):
-        """
-        Connect chassis sub resource
+        """Connect chassis sub resource.
+
         :param AbstractResource chassis:
         """
         self._add_sub_resource_with_type_restrictions(chassis, [GenericChassis])
 
     def connect_port_channel(self, port_channel):
-        """
-        Connect port channel sub resource
+        """Connect port channel sub resource.
+
         :param AbstractResource port_channel:
         """
         self._add_sub_resource_with_type_restrictions(
@@ -77,9 +76,9 @@ class GenericResourceModel(AbstractResource):
 
     @classmethod
     def from_resource_config(cls, resource_config):
-        """
-        :param cloudshell.shell_standards.core.resource_config_entities.GenericResourceConfig resource_config:
-        :return:
+        """Initialize from resource config.
+
+        :type resource_config: cloudshell.shell_standards.core.resource_config_entities.GenericResourceConfig  # noqa: E501
         """
         return cls(
             resource_config.name,
@@ -106,22 +105,22 @@ class GenericChassis(AbstractResource):
     )
 
     def connect_module(self, module):
-        """
-        Connect module sub resource
+        """Connect module sub resource.
+
         :param AbstractResource module:
         """
         self._add_sub_resource_with_type_restrictions(module, [GenericModule])
 
     def connect_power_port(self, power_port):
-        """
-        Connect power_port sub resource
+        """Connect power_port sub resource.
+
         :param AbstractResource power_port:
         """
         self._add_sub_resource_with_type_restrictions(power_port, [GenericPowerPort])
 
     def connect_port(self, port):
-        """
-        Connect port sub resource
+        """Connect port sub resource.
+
         :param AbstractResource port:
         """
         self._add_sub_resource_with_type_restrictions(port, [GenericPort])
@@ -148,15 +147,15 @@ class GenericModule(AbstractResource):
     )
 
     def connect_sub_module(self, sub_module):
-        """
-        Connect sub_module sub resource
+        """Connect sub_module sub resource.
+
         :param AbstractResource sub_module:
         """
         self._add_sub_resource_with_type_restrictions(sub_module, [GenericSubModule])
 
     def connect_port(self, port):
-        """
-        Connect port sub resource
+        """Connect port sub resource.
+
         :param AbstractResource port:
         """
         self._add_sub_resource_with_type_restrictions(port, [GenericPort])
@@ -183,8 +182,8 @@ class GenericSubModule(AbstractResource):
     )
 
     def connect_port(self, port):
-        """
-        Connect port sub resource
+        """Connect port sub resource.
+
         :param AbstractResource port:
         """
         self._add_sub_resource_with_type_restrictions(port, [BasePort])

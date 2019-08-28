@@ -11,7 +11,8 @@ class ResourceAttrRO(object):
         FAMILY_NAME = "family_name"
 
     def __init__(self, name, namespace, default=None):
-        """
+        """Resource Attribute read-only.
+
         :param str name:
         :param str namespace:
         :param str default:
@@ -21,14 +22,16 @@ class ResourceAttrRO(object):
         self.default = default
 
     def get_key(self, instance):
-        """
+        """Get key.
+
         :param GenericResourceConfig instance:
         :rtype: str
         """
         return "{}.{}".format(getattr(instance, self.namespace), self.name)
 
     def __get__(self, instance, owner):
-        """
+        """Getter.
+
         :param GenericResourceConfig instance:
         :rtype: str
         """
@@ -41,7 +44,8 @@ class ResourceAttrRO(object):
 class PasswordAttrRO(ResourceAttrRO):
     @lru_cache()
     def _decrypt_password(self, api, attr_value):
-        """
+        """Decrypt password.
+
         :param cloudshell.api.cloudshell_api.CloudShellAPISession api:
         :param str attr_value:
         :return:
@@ -51,7 +55,8 @@ class PasswordAttrRO(ResourceAttrRO):
         raise ResourceConfigException("Cannot decrypt password, API is not defined")
 
     def __get__(self, instance, owner):
-        """
+        """Getter.
+
         :param GenericResourceConfig instance:
         :rtype: str
         """
@@ -74,13 +79,12 @@ class GenericResourceConfig(object):
         supported_os=None,
         api=None,
     ):
-        """Init method
+        """Init method.
 
         :param str shell_name: Shell Name
         :param str name: Resource Name
         :param list supported_os: list of supported OS
         """
-
         self.attributes = attributes or {}
         self.shell_name = shell_name
         self.name = name
@@ -96,7 +100,7 @@ class GenericResourceConfig(object):
 
     @classmethod
     def from_context(cls, shell_name, context, api=None, supported_os=None):
-        """Creates an instance of a Resource by given context
+        """Creates an instance of a Resource by given context.
 
         :param str shell_name: Shell Name
         :param list supported_os: list of supported OS
@@ -104,7 +108,6 @@ class GenericResourceConfig(object):
         :param cloudshell.api.cloudshell_api.CloudShellAPISession api:
         :rtype: GenericResourceConfig
         """
-
         return cls(
             shell_name=shell_name,
             name=context.resource.name,

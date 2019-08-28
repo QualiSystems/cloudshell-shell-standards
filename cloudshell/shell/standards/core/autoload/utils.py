@@ -9,14 +9,16 @@ from cloudshell.shell.core.driver_context import (
 
 class AutoloadDetailsBuilder(object):
     def __init__(self, resource_model):
-        """
-        :param cloudshell.shell_standards.autoload_generic_models.GenericResourceModel resource_model:
+        """Autoload Details Builder.
+
+        :param cloudshell.shell_standards.autoload_generic_models.GenericResourceModel resource_model:  # noqa: E501
         """
         self.resource_model = resource_model
 
     def _build_branch(self, resource):
-        """
-        :type resource: cloudshell.shell.standards.core.autoload.resource_model.AbstractResource
+        """Build a branch.
+
+        :type resource: cloudshell.shell.standards.core.autoload.resource_model.AbstractResource  # noqa: E501
         :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
         """
         resource.shell_name = resource.shell_name or self.resource_model.shell_name
@@ -51,8 +53,8 @@ class AutoloadDetailsBuilder(object):
         return autoload_details
 
     def build_details(self):
-        """
-        Build resource details
+        """Build resource details.
+
         :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
         """
         return self._build_branch(self.resource_model)

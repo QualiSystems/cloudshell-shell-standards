@@ -6,7 +6,7 @@ from cloudshell.shell.standards.core.utils import attr_length_validator
 
 
 class AttributeContainer(object):
-    """Contains Attributes"""
+    """Contains Attributes."""
 
     def __init__(self):
         self.attributes = {}
@@ -14,7 +14,8 @@ class AttributeContainer(object):
 
 class AttributeName(object):
     def __init__(self, attribute_model, attribute_container):
-        """
+        """Attribute Name.
+
         :param AttributeModel attribute_model:
         :param AttributeContainer attribute_container:
         """
@@ -31,16 +32,15 @@ class AttributeName(object):
         return hash(self._attribute_model)
 
     def __eq__(self, other):
-        """
+        """Is equal.
+
         :param AttributeName other:
         """
         return self._attribute_model == other._attribute_model
 
 
 class AttributeModel(object):
-    """
-    Attribute descriptor
-    """
+    """Attribute descriptor."""
 
     MAX_LENGTH = 2000
 
@@ -52,10 +52,10 @@ class AttributeModel(object):
         return self.name
 
     def __get__(self, instance, owner):
-        """
+        """Getter.
+
         :type instance: AttributeContainer
         """
-
         if instance is None:
             return self
 
@@ -65,7 +65,8 @@ class AttributeModel(object):
 
     @attr_length_validator(MAX_LENGTH)
     def __set__(self, instance, value):
-        """
+        """Setter.
+
         :type instance: AttributeContainer
         :return:
         """
@@ -76,16 +77,15 @@ class AttributeModel(object):
         return hash(self.name)
 
     def __eq__(self, other):
-        """
+        """Is equal.
+
         :param AttributeModel other:
         """
         return self.name == other.name
 
 
 class InstanceAttribute(object):
-    """
-    Validates instance attribute
-    """
+    """Validates instance attribute."""
 
     def __init__(self):
         self.value_container = {}
@@ -105,21 +105,19 @@ class RelativeAddress(object):
     ADDRESS_SEPARATOR = "/"
 
     class IndexValidator(object):
-        """
-        Validate registered indexes
-        """
+        """Validate registered indexes."""
 
         def __init__(self):
             self._address_dict = defaultdict(lambda: defaultdict(list))
 
         @staticmethod
         def _generate_index(index, position):
-            """Generate index if needed"""
+            """Generate index if needed."""
             return "{}-{}".format(index, position)
 
         def get_valid(self, node):
-            """
-            Validate index
+            """Validate index.
+
             :type node: RelativeAddress
             """
             instance_list = self._address_dict.get(node._prefix, {}).get(
@@ -133,19 +131,19 @@ class RelativeAddress(object):
                 return node.native_index
 
         def register(self, node):
-            """
-            Register node
+            """Register node.
+
             :type node: RelativeAddress
             """
             self._address_dict[node._prefix][node.native_index].append(node)
 
     def __init__(self, index, prefix="", parent_node=None):
-        """
+        """Relative Address.
+
         :type index: str
         :type prefix: str
         :type parent_node: RelativeAddress
         """
-
         self.__parent_node = None
         self.__index_validator = RelativeAddress.IndexValidator()
 
@@ -155,8 +153,8 @@ class RelativeAddress(object):
 
     @property
     def index(self):
-        """
-        Validated index
+        """Validated index.
+
         :rtype: str
         """
         if self.parent_node and self.parent_node.__index_validator:
@@ -170,8 +168,8 @@ class RelativeAddress(object):
 
     @property
     def _full_address(self):
-        """
-        Relative address
+        """Relative address.
+
         :rtype: str
         """
         if self.parent_node and self.parent_node._full_address:
@@ -187,15 +185,16 @@ class RelativeAddress(object):
 
     @property
     def parent_node(self):
-        """
-        Parent node
+        """Parent node.
+
         :rtype: RelativeAddress
         """
         return self.__parent_node
 
     @parent_node.setter
     def parent_node(self, node):
-        """
+        """Parent Node setter.
+
         :type node: RelativeAddress
         """
         if node:
@@ -204,9 +203,7 @@ class RelativeAddress(object):
 
     @property
     def _local_address(self):
-        """
-        Generates local relative address
-        """
+        """Generates local relative address."""
         local_address = "{}{}".format(self._prefix or "", self.index or "")
         return local_address
 
