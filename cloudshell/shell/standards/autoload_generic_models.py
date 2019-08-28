@@ -3,7 +3,10 @@
 from abc import abstractmethod
 
 import cloudshell.shell.standards.attribute_names as attribute_names
-from cloudshell.shell.standards.core.autoload.resource_model import AbstractResource, ResourceAttribute
+from cloudshell.shell.standards.core.autoload.resource_model import (
+    AbstractResource,
+    ResourceAttribute
+)
 from cloudshell.shell.standards.core.autoload.utils import AutoloadDetailsBuilder
 from cloudshell.shell.standards.exceptions import ResourceModelException
 

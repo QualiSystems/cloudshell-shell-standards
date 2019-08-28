@@ -1,6 +1,9 @@
 from cloudshell.shell.standards import attribute_names
-from cloudshell.shell.standards.core.resource_config_entities import ResourceAttrRO, GenericResourceConfig, \
-    PasswordAttrRO
+from cloudshell.shell.standards.core.resource_config_entities import (
+    GenericResourceConfig,
+    PasswordAttrRO,
+    ResourceAttrRO
+)
 
 
 class GenericSnmpConfig(GenericResourceConfig):

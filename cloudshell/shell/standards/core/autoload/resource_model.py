@@ -1,11 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 
-from cloudshell.shell.standards.core.autoload.core_entities import InstanceAttribute, RelativeAddress, \
-    AttributeContainer, \
-    AttributeModel
+from cloudshell.shell.standards.core.autoload.core_entities import (
+    AttributeContainer,
+    AttributeModel,
+    InstanceAttribute,
+    RelativeAddress
+)
 from cloudshell.shell.standards.exceptions import ResourceModelException
 
 
