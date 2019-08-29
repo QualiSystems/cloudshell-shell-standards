@@ -1,8 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from functools import lru_cache
+import sys
 
 from cloudshell.shell.standards.exceptions import ResourceConfigException
+
+if sys.version_info >= (3, 0):
+    from functools import lru_cache
+else:
+    from functools32 import lru_cache
 
 
 class ResourceAttrRO(object):
