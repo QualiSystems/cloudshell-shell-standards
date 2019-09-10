@@ -20,7 +20,6 @@ setup(
     install_requires=required,
     tests_require=required_for_tests,
     test_suite="nose.collector",
-    python_requires="~=3.7",
     version=version_from_file,
     description="QualiSystems Shells Standards Package",
     include_package_data=True,
