@@ -214,4 +214,4 @@ class RelativeAddress(object):
         return self.to_string()
 
     def __repr__(self):
-        self.__str__()
+        return self.__str__()
