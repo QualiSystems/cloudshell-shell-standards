@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 from cloudshell.shell.standards.core.autoload.core_entities import (
     AttributeContainer,
@@ -10,6 +10,9 @@ from cloudshell.shell.standards.core.autoload.core_entities import (
     RelativeAddress,
 )
 from cloudshell.shell.standards.exceptions import ResourceModelException
+
+# compatible with Python 2 *and* 3:
+ABC = ABCMeta("ABC", (object,), {"__slots__": ()})
 
 
 class ResourceNode(ABC):

@@ -33,7 +33,8 @@ class TestGenericResourceModel(unittest.TestCase):
         self.assertEqual("", resource.relative_address.__repr__())
         self.assertEqual("GenericResource", resource.resource_model)
         self.assertEqual(
-            f"{shell_name}.{resource.resource_model}", resource.cloudshell_model_name
+            "{}.{}".format(shell_name, resource.resource_model),
+            resource.cloudshell_model_name,
         )
         self.assertEqual(ResourcePort, resource.entities.Port)
         self.assertIsInstance(resource.unique_identifier, str)
@@ -76,7 +77,7 @@ class TestGenericResourceModel(unittest.TestCase):
             "Vendor": vendor,
         }
         expected_attributes = {
-            f"{family_name}.{k}": v for k, v in expected_attributes.items()
+            "{}.{}".format(family_name, k): v for k, v in expected_attributes.items()
         }
 
         self.assertDictEqual(expected_attributes, resource_attributes)
