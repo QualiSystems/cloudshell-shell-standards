@@ -1,6 +1,6 @@
 # cloudshell-shell-standards
-[![Build status](https://travis-ci.org/QualiSystems/cloudshell-shell-standards.svg?branch=dev)](https://travis-ci.org/QualiSystems/cloudshell-shell-standards)
-[![codecov](https://codecov.io/gh/QualiSystems/cloudshell-shell-standards/branch/dev/graph/badge.svg)](https://codecov.io/gh/QualiSystems/cloudshell-shell-standards)
+[![Build status](https://travis-ci.org/QualiSystems/cloudshell-shell-standards.svg?branch=master)](https://travis-ci.org/QualiSystems/cloudshell-shell-standards)
+[![codecov](https://codecov.io/gh/QualiSystems/cloudshell-shell-standards/branch/master/graph/badge.svg)](https://codecov.io/gh/QualiSystems/cloudshell-shell-standards)
 [![PyPI version](https://badge.fury.io/py/cloudshell-shell-standards.svg)](https://badge.fury.io/py/cloudshell-shell-standards)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 
