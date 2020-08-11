@@ -72,6 +72,21 @@ class PasswordAttrRO(ResourceAttrRO):
         )
 
 
+class ResourceListAttrRO(ResourceAttrRO):
+    def __init__(self, name, namespace, *args, sep=";", **kwargs):
+        super().__init__(name, namespace, *args, **kwargs)
+        self._sep = sep
+
+    def __get__(self, instance, owner):
+        """Getter.
+
+        :param GenericResourceConfig instance:
+        :rtype: list[str]
+        """
+        values_str = super().__get__(instance, owner)
+        return list(filter(bool, map(str.strip, values_str.split(self._sep))))
+
+
 class GenericResourceConfig(object):
     def __init__(
         self,
