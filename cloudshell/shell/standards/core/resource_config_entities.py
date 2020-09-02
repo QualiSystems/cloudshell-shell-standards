@@ -65,16 +65,17 @@ class PasswordAttrRO(ResourceAttrRO):
         :param GenericResourceConfig instance:
         :rtype: str
         """
-        if instance is None:
-            return self
-        return self._decrypt_password(
-            instance.api, instance.attributes.get(self.get_key(instance))
-        )
+        val = super(PasswordAttrRO, self).__get__(instance, owner)
+        if val is self or val is self.default:
+            return val
+        return self._decrypt_password(instance.api, val)
 
 
 class ResourceListAttrRO(ResourceAttrRO):
-    def __init__(self, name, namespace, sep=";", *args, **kwargs):
-        super(ResourceListAttrRO, self).__init__(name, namespace, *args, **kwargs)
+    def __init__(self, name, namespace, sep=";", default=None):
+        if default is None:
+            default = []
+        super(ResourceListAttrRO, self).__init__(name, namespace, default)
         self._sep = sep
 
     def __get__(self, instance, owner):
@@ -83,8 +84,33 @@ class ResourceListAttrRO(ResourceAttrRO):
         :param GenericResourceConfig instance:
         :rtype: list[str]
         """
-        values_str = super(ResourceListAttrRO, self).__get__(instance, owner)
-        return list(filter(bool, map(str.strip, values_str.split(self._sep))))
+        val = super(ResourceListAttrRO, self).__get__(instance, owner)
+        if val is self or val is self.default or not isinstance(val, str):
+            return val
+        return list(filter(bool, map(str.strip, val.split(self._sep))))
+
+
+class ResourceBoolAttrRO(ResourceAttrRO):
+    TRUE_VALUES = {"true", "yes", "y"}
+    FALSE_VALUES = {"false", "no", "n"}
+
+    def __init__(self, name, namespace, default=False):
+        super(ResourceBoolAttrRO, self).__init__(name, namespace, default)
+
+    def __get__(self, instance, owner):
+        """Getter.
+
+        :param GenericResourceConfig instance:
+        :rtype: bool
+        """
+        val = super(ResourceBoolAttrRO, self).__get__(instance, owner)
+        if val is self or val is self.default or not isinstance(val, str):
+            return val
+        if val.lower() in self.TRUE_VALUES:
+            return True
+        if val.lower() in self.FALSE_VALUES:
+            return False
+        raise ValueError("{} is boolean attr, but value is {}".format(self.name, val))
 
 
 class GenericResourceConfig(object):
