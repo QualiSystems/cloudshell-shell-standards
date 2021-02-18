@@ -71,8 +71,8 @@ class GenericResourceModel(AbstractResource):
             port_channel, [GenericPortChannel]
         )
 
-    def build(self):
-        return AutoloadDetailsBuilder(self).build_details()
+    def build(self, filter_empty_modules=False):
+        return AutoloadDetailsBuilder(self, filter_empty_modules).build_details()
 
     @classmethod
     def from_resource_config(cls, resource_config):
