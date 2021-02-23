@@ -1,4 +1,7 @@
+import uuid
 from unittest import TestCase
+
+import pytest
 
 from cloudshell.shell.standards.autoload_generic_models import (
     GenericChassis,
@@ -95,6 +98,11 @@ def _create_resource():
     return resource
 
 
+@pytest.fixture()
+def resource():
+    return _create_resource()
+
+
 class TestAutoloadDetailsBuilderFiltering(TestCase):
     def setUp(self):
         self._resource = _create_resource()
@@ -138,3 +146,9 @@ class TestAutoloadDetailsBuilderFiltering(TestCase):
         details = self._resource.build()
         resource_names = {resource.name for resource in details.resources}
         self.assertEqual(resource_names, expected_resource_names)
+
+
+def test_autoload_details_builder_with_cs_id(resource):
+    cs_resource_id = uuid.uuid4()
+    resource._cs_resource_id = cs_resource_id
+    resource.build(use_cs_resource_id=True)
