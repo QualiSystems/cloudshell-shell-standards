@@ -124,6 +124,7 @@ class GenericResourceConfig(object):
         attributes=None,
         supported_os=None,
         api=None,
+        cs_resource_id=None,
     ):
         """Init method.
 
@@ -140,6 +141,7 @@ class GenericResourceConfig(object):
         self.family_name = family_name  # The resource family
         self.namespace_prefix = "{}".format(self.shell_name)
         self.api = api
+        self.cs_resource_id = cs_resource_id
 
         if not shell_name:
             raise DeprecationWarning("1gen Shells doesn't supported")
@@ -163,4 +165,5 @@ class GenericResourceConfig(object):
             attributes=dict(context.resource.attributes),
             supported_os=supported_os,
             api=api,
+            cs_resource_id=context.resource.id,
         )
