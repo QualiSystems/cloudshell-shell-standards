@@ -38,8 +38,7 @@ class GenericResourceModel(AbstractResource):
         attribute_names.VENDOR, ResourceAttribute.NAMESPACE.FAMILY_NAME
     )
 
-    def __init__(self, resource_name, shell_name, family_name):
-
+    def __init__(self, resource_name, shell_name, family_name, cs_resource_id=None):
         if family_name not in self.SUPPORTED_FAMILY_NAMES:
             raise ResourceModelException(
                 "Not supported family name {}. Family name should be one of: {}".format(
@@ -49,6 +48,7 @@ class GenericResourceModel(AbstractResource):
         super(GenericResourceModel, self).__init__(
             None, shell_name, name=resource_name, family_name=family_name
         )
+        self._cs_resource_id = cs_resource_id
 
     @property
     @abstractmethod
@@ -71,8 +71,11 @@ class GenericResourceModel(AbstractResource):
             port_channel, [GenericPortChannel]
         )
 
-    def build(self, filter_empty_modules=False):
-        return AutoloadDetailsBuilder(self, filter_empty_modules).build_details()
+    def build(self, filter_empty_modules=False, use_cs_resource_id=False):
+        cs_resource_id = self._cs_resource_id if use_cs_resource_id else None
+        return AutoloadDetailsBuilder(
+            self, filter_empty_modules, cs_resource_id
+        ).build_details()
 
     @classmethod
     def from_resource_config(cls, resource_config):
@@ -84,6 +87,7 @@ class GenericResourceModel(AbstractResource):
             resource_config.name,
             resource_config.shell_name,
             resource_config.family_name,
+            cs_resource_id=resource_config.cs_resource_id,
         )
 
 

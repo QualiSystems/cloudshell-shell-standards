@@ -10,10 +10,10 @@ from cloudshell.shell.core.driver_context import (
 
 
 class AutoloadDetailsBuilder(object):
-    def __init__(self, resource_model, filter_empty_modules=False):
+    def __init__(self, resource_model, filter_empty_modules=False, cs_resource_id=None):
         """Autoload Details Builder.
 
-        :param cloudshell.shell_standards.autoload_generic_models.GenericResourceModel resource_model:  # noqa: E501
+        :param cloudshell.shell.standards.autoload_generic_models.GenericResourceModel resource_model:  # noqa: E501
         :param bool filter_empty_modules:
         """
         if not filter_empty_modules:
@@ -22,18 +22,25 @@ class AutoloadDetailsBuilder(object):
                 "Empty modules would be filtered by default in next major version",
                 PendingDeprecationWarning,
             )
+        if not cs_resource_id:
+            # todo v2.0 - always use CS Id for generating unique id
+            warnings.warn(
+                "CS resource Id would be used by default in next major version",
+                PendingDeprecationWarning,
+            )
         self.resource_model = resource_model
         self._filter_empty_modules = filter_empty_modules
+        self._cs_resource_id = cs_resource_id
 
     def _build_branch(self, resource):
         """Build a branch.
 
-        :type resource: cloudshell.shell.standards.core.autoload.resource_model.AbstractResource  # noqa: E501
+        :param cloudshell.shell.standards.core.autoload.resource_model.AbstractResource resource: # noqa: E501
         :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
         """
         resource.shell_name = resource.shell_name or self.resource_model.shell_name
         relative_address = str(resource.relative_address)
-        unique_identifier = str(resource.unique_identifier)
+        unique_identifier = get_unique_id(self._cs_resource_id, resource)
 
         autoload_details = AutoLoadDetails([], [])
 
@@ -73,6 +80,23 @@ class AutoloadDetailsBuilder(object):
         :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
         """
         return self._build_branch(self.resource_model)
+
+
+def get_unique_id(cs_resource_id, resource):
+    """Get unique ID for the resource.
+
+    If we have cs_resource_id use it for creating unique id.
+    :type cs_resource_id: str
+    :param cloudshell.shell.standards.core.autoload.resource_model.AbstractResource resource:  # noqa: E501
+    :rtype: str
+    """
+    if cs_resource_id:
+        unique_id = resource._unique_identifier or resource.name
+        unique_id = "{}+{}".format(cs_resource_id, unique_id)
+        unique_id = str(hash(unique_id))
+    else:
+        unique_id = str(resource.unique_identifier)
+    return unique_id
 
 
 def is_module_without_children(resource):
