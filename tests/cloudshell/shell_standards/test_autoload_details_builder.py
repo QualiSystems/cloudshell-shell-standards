@@ -150,5 +150,5 @@ class TestAutoloadDetailsBuilderFiltering(TestCase):
 
 def test_autoload_details_builder_with_cs_id(resource):
     cs_resource_id = uuid.uuid4()
-    resource._cs_resource_id = cs_resource_id
-    resource.build(use_cs_resource_id=True)
+    resource.cs_resource_id = cs_resource_id
+    resource.build(use_new_unique_id=True)
