@@ -10,11 +10,14 @@ from cloudshell.shell.core.driver_context import (
 
 
 class AutoloadDetailsBuilder(object):
-    def __init__(self, resource_model, filter_empty_modules=False, cs_resource_id=None):
+    def __init__(
+        self, resource_model, filter_empty_modules=False, use_new_unique_id=False
+    ):
         """Autoload Details Builder.
 
         :param cloudshell.shell.standards.autoload_generic_models.GenericResourceModel resource_model:  # noqa: E501
         :param bool filter_empty_modules:
+        :param bool use_new_unique_id: use CS resource Id for creating unique id
         """
         if not filter_empty_modules:
             # todo v2.0 - set filter_empty_modules=True by default
@@ -22,7 +25,7 @@ class AutoloadDetailsBuilder(object):
                 "Empty modules would be filtered by default in next major version",
                 PendingDeprecationWarning,
             )
-        if not cs_resource_id:
+        if not use_new_unique_id:
             # todo v2.0 - always use CS Id for generating unique id
             warnings.warn(
                 "CS resource Id would be used by default in next major version",
@@ -30,7 +33,9 @@ class AutoloadDetailsBuilder(object):
             )
         self.resource_model = resource_model
         self._filter_empty_modules = filter_empty_modules
-        self._cs_resource_id = cs_resource_id
+        self._cs_resource_id = (
+            resource_model.cs_resource_id if use_new_unique_id else None
+        )
 
     def _build_branch(self, resource):
         """Build a branch.
