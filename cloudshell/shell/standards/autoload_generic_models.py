@@ -48,7 +48,7 @@ class GenericResourceModel(AbstractResource):
         super(GenericResourceModel, self).__init__(
             None, shell_name, name=resource_name, family_name=family_name
         )
-        self._cs_resource_id = cs_resource_id
+        self.cs_resource_id = cs_resource_id
 
     @property
     @abstractmethod
@@ -71,10 +71,9 @@ class GenericResourceModel(AbstractResource):
             port_channel, [GenericPortChannel]
         )
 
-    def build(self, filter_empty_modules=False, use_cs_resource_id=False):
-        cs_resource_id = self._cs_resource_id if use_cs_resource_id else None
+    def build(self, filter_empty_modules=False, use_new_unique_id=False):
         return AutoloadDetailsBuilder(
-            self, filter_empty_modules, cs_resource_id
+            self, filter_empty_modules, use_new_unique_id
         ).build_details()
 
     @classmethod
