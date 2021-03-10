@@ -96,8 +96,7 @@ def get_unique_id(cs_resource_id, resource):
     :rtype: str
     """
     if cs_resource_id:
-        unique_id = resource._unique_identifier or resource.name
-        unique_id = "{}+{}".format(cs_resource_id, unique_id)
+        unique_id = "{}+{}".format(cs_resource_id, resource.unique_identifier)
         unique_id = str(hash(unique_id))
     else:
         unique_id = str(resource.unique_identifier)

@@ -50,22 +50,22 @@ def _create_resource():
     port_2_3 = GenericPort("2-3")
     port_2_3.model_name = "port-2-3"
 
-    sub_module1_1 = GenericSubModule("1-1")
+    sub_module1_1 = GenericSubModule("1")
     sub_module1_1.model = "submodule1-1 model"
     sub_module1_1.connect_port(port_1_1_1)
 
-    sub_module1_2 = GenericSubModule("1-2")
+    sub_module1_2 = GenericSubModule("2")
     sub_module1_2.model = "submodule1-2 model"
     sub_module1_2.connect_port(port_1_2_1)
     sub_module1_2.connect_port(port_1_2_2)
 
-    sub_module2_1 = GenericSubModule("2-1")
+    sub_module2_1 = GenericSubModule("1")
     sub_module2_1.model = "submodule2-1 model"
 
-    sub_module2_2 = GenericSubModule("2-2")
+    sub_module2_2 = GenericSubModule("2")
     sub_module2_2.model = "submodule2-2 model"
 
-    sub_module3_1 = GenericSubModule("3-1")
+    sub_module3_1 = GenericSubModule("1")
     sub_module3_1.model = "submodule3-1 model"
 
     module1 = GenericModule("1")
@@ -111,9 +111,9 @@ class TestAutoloadDetailsBuilderFiltering(TestCase):
         expected_resource_names = {
             "Chassis 1",
             "Module 1",
-            "SubModule 1-1",
+            "SubModule 1",
             "Port 1-1-1",
-            "SubModule 1-2",
+            "SubModule 2",
             "Port 1-2-1",
             "Port 1-2-2",
             "Port 1-3",
@@ -129,18 +129,18 @@ class TestAutoloadDetailsBuilderFiltering(TestCase):
         expected_resource_names = {
             "Module 4",
             "Port 1-1-1",
-            "SubModule 1-1",
+            "SubModule 1",
             "Module 3",
             "Module 2",
             "Port 1-2-2",
             "Port 1-2-1",
             "Port 1-3",
-            "SubModule 2-2",
-            "SubModule 3-1",
+            "SubModule 2",
+            "SubModule 1",
             "Module 1",
-            "SubModule 2-1",
+            "SubModule 1",
             "Chassis 1",
-            "SubModule 1-2",
+            "SubModule 2",
             "Port 2-3",
         }
         details = self._resource.build()
@@ -151,4 +151,7 @@ class TestAutoloadDetailsBuilderFiltering(TestCase):
 def test_autoload_details_builder_with_cs_id(resource):
     cs_resource_id = uuid.uuid4()
     resource.cs_resource_id = cs_resource_id
-    resource.build(use_new_unique_id=True)
+    structure = resource.build(use_new_unique_id=True)
+
+    unique_ids = [resource.unique_identifier for resource in structure.resources]
+    assert len(set(unique_ids)) == len(unique_ids), "Not all unique ids are unique"
