@@ -29,6 +29,7 @@ class ResourceNode(ABC):
     ):
         self.relative_address = RelativeAddress(index, prefix)
 
+        self.parent = None
         self._name = name
         self._unique_identifier = unique_id
         self._child_resources: list[SUB_RESOURCE_TYPE] = []
@@ -39,6 +40,12 @@ class ResourceNode(ABC):
             return self._name
         else:
             return self._gen_name()
+
+    @property
+    def full_name(self) -> str:
+        if self.parent:
+            return f"{self.parent.full_name}/{self.name}"
+        return self.name
 
     @abstractmethod
     def _gen_name(self) -> str:
@@ -56,6 +63,7 @@ class ResourceNode(ABC):
 
     def _add_sub_resource(self, sub_resource: SUB_RESOURCE_TYPE) -> None:
         sub_resource.relative_address.parent_node = self.relative_address
+        sub_resource.parent = self
         self._child_resources.append(sub_resource)
 
     def extract_sub_resources(self) -> list[SUB_RESOURCE_TYPE]:
