@@ -1,6 +1,9 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+from __future__ import annotations
+
 from abc import abstractmethod
+from typing import TYPE_CHECKING
+
+from typing_extensions import Self
 
 import cloudshell.shell.standards.attribute_names as attribute_names
 from cloudshell.shell.standards.core.autoload.resource_model import (
@@ -9,6 +12,13 @@ from cloudshell.shell.standards.core.autoload.resource_model import (
 )
 from cloudshell.shell.standards.core.autoload.utils import AutoloadDetailsBuilder
 from cloudshell.shell.standards.exceptions import ResourceModelException
+
+if TYPE_CHECKING:
+    from cloudshell.shell.core.driver_context import AutoLoadDetails
+
+    from cloudshell.shell.standards.core.resource_config_entities import (
+        GenericResourceConfig,
+    )
 
 
 class GenericResourceModel(AbstractResource):
@@ -38,16 +48,20 @@ class GenericResourceModel(AbstractResource):
         attribute_names.VENDOR, ResourceAttribute.NAMESPACE.FAMILY_NAME
     )
 
-    def __init__(self, resource_name, shell_name, family_name, cs_resource_id=None):
+    def __init__(
+        self,
+        resource_name: str,
+        shell_name: str,
+        family_name: str,
+        cs_resource_id: str | None = None,
+    ):
         if family_name not in self.SUPPORTED_FAMILY_NAMES:
+            families = ", ".join(self.SUPPORTED_FAMILY_NAMES)
             raise ResourceModelException(
-                "Not supported family name {}. Family name should be one of: {}".format(
-                    family_name, ", ".join(self.SUPPORTED_FAMILY_NAMES)
-                )
+                f"Not supported family name {family_name}. "
+                f"Family name should be one of: {families}"
             )
-        super(GenericResourceModel, self).__init__(
-            None, shell_name, name=resource_name, family_name=family_name
-        )
+        super().__init__(None, shell_name, name=resource_name, family_name=family_name)
         self.cs_resource_id = cs_resource_id
 
     @property
@@ -55,39 +69,31 @@ class GenericResourceModel(AbstractResource):
     def entities(self):
         pass
 
-    def connect_chassis(self, chassis):
-        """Connect chassis sub resource.
-
-        :param AbstractResource chassis:
-        """
+    def connect_chassis(self, chassis: GenericChassis) -> None:
+        """Connect chassis sub resource."""
         self._add_sub_resource_with_type_restrictions(chassis, [GenericChassis])
 
-    def connect_port_channel(self, port_channel):
-        """Connect port channel sub resource.
-
-        :param AbstractResource port_channel:
-        """
+    def connect_port_channel(self, port_channel: GenericPortChannel) -> None:
+        """Connect port channel sub resource."""
         self._add_sub_resource_with_type_restrictions(
             port_channel, [GenericPortChannel]
         )
 
-    def build(self, filter_empty_modules=False, use_new_unique_id=False):
-        return AutoloadDetailsBuilder(
-            self, filter_empty_modules, use_new_unique_id
-        ).build_details()
-
     @classmethod
-    def from_resource_config(cls, resource_config):
-        """Initialize from resource config.
-
-        :type resource_config: cloudshell.shell_standards.core.resource_config_entities.GenericResourceConfig  # noqa: E501
-        """
+    def from_resource_config(cls, resource_config: GenericResourceConfig) -> Self:
         return cls(
             resource_config.name,
             resource_config.shell_name,
             resource_config.family_name,
             cs_resource_id=resource_config.cs_resource_id,
         )
+
+    def build(
+        self, filter_empty_modules: bool = False, use_new_unique_id: bool = False
+    ) -> AutoLoadDetails:
+        return AutoloadDetailsBuilder(
+            self, filter_empty_modules, use_new_unique_id
+        ).build_details()
 
 
 class GenericChassis(AbstractResource):
@@ -107,25 +113,16 @@ class GenericChassis(AbstractResource):
         attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME
     )
 
-    def connect_module(self, module):
-        """Connect module sub resource.
-
-        :param AbstractResource module:
-        """
+    def connect_module(self, module: GenericModule) -> None:
+        """Connect module sub resource."""
         self._add_sub_resource_with_type_restrictions(module, [GenericModule])
 
-    def connect_power_port(self, power_port):
-        """Connect power_port sub resource.
-
-        :param AbstractResource power_port:
-        """
+    def connect_power_port(self, power_port: GenericPowerPort) -> None:
+        """Connect power_port sub resource."""
         self._add_sub_resource_with_type_restrictions(power_port, [GenericPowerPort])
 
-    def connect_port(self, port):
-        """Connect port sub resource.
-
-        :param AbstractResource port:
-        """
+    def connect_port(self, port: GenericPort) -> None:
+        """Connect port sub resource."""
         self._add_sub_resource_with_type_restrictions(port, [GenericPort])
 
 
@@ -149,18 +146,12 @@ class GenericModule(AbstractResource):
         attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME
     )
 
-    def connect_sub_module(self, sub_module):
-        """Connect sub_module sub resource.
-
-        :param AbstractResource sub_module:
-        """
+    def connect_sub_module(self, sub_module: GenericSubModule) -> None:
+        """Connect sub_module sub resource."""
         self._add_sub_resource_with_type_restrictions(sub_module, [GenericSubModule])
 
-    def connect_port(self, port):
-        """Connect port sub resource.
-
-        :param AbstractResource port:
-        """
+    def connect_port(self, port: GenericPort) -> None:
+        """Connect port sub resource."""
         self._add_sub_resource_with_type_restrictions(port, [GenericPort])
 
 
@@ -184,11 +175,8 @@ class GenericSubModule(AbstractResource):
         attribute_names.MODEL_NAME, ResourceAttribute.NAMESPACE.FAMILY_NAME
     )
 
-    def connect_port(self, port):
-        """Connect port sub resource.
-
-        :param AbstractResource port:
-        """
+    def connect_port(self, port: BasePort) -> None:
+        """Connect port sub resource."""
         self._add_sub_resource_with_type_restrictions(port, [BasePort])
 
 

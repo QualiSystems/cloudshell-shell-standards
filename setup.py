@@ -19,8 +19,9 @@ setup(
     packages=find_packages(),
     install_requires=required,
     tests_require=required_for_tests,
-    test_suite="nose.collector",
     version=version_from_file,
     description="QualiSystems Shells Standards Package",
+    long_description="QualiSystems Shells Standards Package",
     include_package_data=True,
+    python_requires="~=3.7",
 )

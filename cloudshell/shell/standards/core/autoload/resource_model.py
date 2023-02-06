@@ -1,7 +1,8 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
+from collections.abc import Iterable
+from typing import Any, TypeVar
 
 from cloudshell.shell.standards.core.autoload.core_entities import (
     AttributeContainer,
@@ -11,73 +12,63 @@ from cloudshell.shell.standards.core.autoload.core_entities import (
 )
 from cloudshell.shell.standards.exceptions import ResourceModelException
 
-# compatible with Python 2 *and* 3:
-ABC = ABCMeta("ABC", (object,), {"__slots__": ()})
+SUB_RESOURCE_TYPE = TypeVar("SUB_RESOURCE_TYPE", bound="ResourceNode")
 
 
 class ResourceNode(ABC):
     _name = InstanceAttribute()
     _unique_identifier = InstanceAttribute()
 
-    def __init__(self, index, prefix, name=None, unique_id=None):
-        """Resource Node.
-
-        :param str name:
-        :param str unique_id:
-        """
+    def __init__(
+        self,
+        index: str | None,
+        prefix: str,
+        name: str | None = None,
+        unique_id: str | None = None,
+    ):
         self.relative_address = RelativeAddress(index, prefix)
 
         self._name = name
         self._unique_identifier = unique_id
-        self._child_resources = []
+        self._child_resources: list[SUB_RESOURCE_TYPE] = []
 
     @property
-    def name(self):
+    def name(self) -> str:
         if self._name:
             return self._name
         else:
             return self._gen_name()
 
     @abstractmethod
-    def _gen_name(self):
+    def _gen_name(self) -> str:
         """Generates resource name."""
         raise NotImplementedError
 
     @property
-    def unique_identifier(self):
+    def unique_identifier(self) -> str:
         if self._unique_identifier:
             return self._unique_identifier
         return self._gen_unique_id()
 
-    def _gen_unique_id(self):
-        """Generates unique id.
+    def _gen_unique_id(self) -> str:
+        return str(hash(f"{self.relative_address}+{self.name}"))
 
-        :rtype: str
-        """
-        return str(hash("{}+{}".format(self.relative_address, self.name)))
-
-    def _add_sub_resource(self, sub_resource):
-        """Add sub resource.
-
-        :type sub_resource: ResourceNode
-        """
+    def _add_sub_resource(self, sub_resource: SUB_RESOURCE_TYPE) -> None:
         sub_resource.relative_address.parent_node = self.relative_address
         self._child_resources.append(sub_resource)
 
-    def extract_sub_resources(self):
+    def extract_sub_resources(self) -> list[SUB_RESOURCE_TYPE]:
         return self._child_resources
 
 
 class NamespaceAttributeContainer(AttributeContainer):
     _RESOURCE_MODEL = ""
 
-    def __init__(self, shell_name, family_name, resource_model=None):
-        """Attribute container with defined attribute levels used by ResourceAttribute.
-
-        :param shell_name:
-        :param family_name:
-        """
-        super(NamespaceAttributeContainer, self).__init__()
+    def __init__(
+        self, shell_name: str, family_name: str, resource_model: str | None = None
+    ):
+        """Attribute container with defined attr levels used by ResourceAttribute."""
+        super().__init__()
         self.family_name = family_name
         self.shell_name = shell_name
         self.resource_model = resource_model or self._RESOURCE_MODEL
@@ -86,28 +77,18 @@ class NamespaceAttributeContainer(AttributeContainer):
 class ResourceAttribute(AttributeModel):
     _RESOURCE_MODEL_ATTR = "resource_model"
 
-    class NAMESPACE(object):
+    class NAMESPACE:
         """Attribute Levels, attributes defined in LVLDefinedAttributeContainer."""
 
         SHELL_NAME = "shell_name"
         FAMILY_NAME = "family_name"
 
-    def __init__(self, name, namespace_attribute, default_value=None):
-        """Resource Attribute.
-
-        :param name: Attribute name
-        :param namespace_attribute:  Attribute name prefix, defined as Level,
-            NAMESPACE.SHELL_NAME or NAMESPACE.FAMILY_TYPE
-        :param default_value: Defailt attribute value
-        """
-        super(ResourceAttribute, self).__init__(name, default_value)
+    def __init__(self, name: str, namespace_attribute: str, default_value: Any = None):
+        super().__init__(name, default_value)
         self.namespace_attribute = namespace_attribute
 
-    def attribute_name(self, instance):
-        """Generate attribute name for the specified prefix.
-
-        :param NamespaceAttributeContainer instance:
-        """
+    def attribute_name(self, instance: NamespaceAttributeContainer) -> str:
+        """Generate attribute name for the specified prefix."""
         namespace = getattr(instance, self.namespace_attribute)
         if self.namespace_attribute == self.NAMESPACE.SHELL_NAME and namespace:
             resource_model = getattr(instance, self._RESOURCE_MODEL_ATTR)
@@ -123,7 +104,12 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
     _FAMILY_NAME = ""
 
     def __init__(
-        self, index, shell_name=None, family_name=None, name=None, unique_id=None
+        self,
+        index: str | None,
+        shell_name: str | None = None,
+        family_name: str | None = None,
+        name: str | None = None,
+        unique_id: str | None = None,
     ):
         ResourceNode.__init__(
             self, index, self._RELATIVE_ADDRESS_PREFIX, name, unique_id
@@ -132,34 +118,35 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
             self, shell_name, family_name or self._FAMILY_NAME
         )
 
-    def _gen_name(self):
+    def _add_sub_resource(self, sub_resource: AbstractResource) -> None:
+        super()._add_sub_resource(sub_resource)
+
+    def extract_sub_resources(self: AbstractResource) -> list[AbstractResource]:
+        return super().extract_sub_resources()
+
+    def _gen_name(self) -> str:
         """Generate resource name."""
         if self._NAME_TEMPLATE:
             return self._NAME_TEMPLATE.format(self.relative_address.index)
         raise ResourceModelException("NAME_TEMPLATE is empty")
 
-    def _add_sub_resource_with_type_restrictions(self, sub_resource, allowed_types):
-        """Register child resource which in the list of allowed types.
-
-        :param AbstractResource sub_resource: Registered resource
-        :param collections.Iterable allowed_types: Allowed types
-        """
+    def _add_sub_resource_with_type_restrictions(
+        self, sub_resource: AbstractResource, allowed_types: Iterable[type]
+    ) -> None:
+        """Register child resource which in the list of allowed types."""
         if isinstance(sub_resource, tuple(allowed_types)):
             self._add_sub_resource(sub_resource)
         else:
+            cls_name = type(self).__name__
+            sub_resource_cls_name = type(sub_resource).__name__
             raise ResourceModelException(
-                "Class {} not allowed to connect to {}".format(
-                    sub_resource.__class__.__name__, self.__class__.__name__
-                )
+                f"Class {sub_resource_cls_name} not allowed to connect to {cls_name}"
             )
 
     @property
-    def cloudshell_model_name(self):
+    def cloudshell_model_name(self) -> str:
         """Return the name of the CloudShell model."""
         if self.shell_name:
-            return "{shell_name}.{resource_model}".format(
-                shell_name=self.shell_name,
-                resource_model=self.resource_model.replace(" ", ""),
-            )
+            return f"{self.shell_name}.{self.resource_model.replace(' ', '')}"
         else:
             return self.resource_model

@@ -1,45 +1,32 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-import sys
+from __future__ import annotations
+
+from functools import lru_cache
+from typing import TYPE_CHECKING
+
+from typing_extensions import Self
+
+from cloudshell.shell.core.driver_context import ResourceCommandContext
 
 from cloudshell.shell.standards.exceptions import ResourceConfigException
 
-if sys.version_info >= (3, 0):
-    from functools import lru_cache
-else:
-    from functools32 import lru_cache
+if TYPE_CHECKING:
+    from cloudshell.api.cloudshell_api import CloudShellAPISession
 
 
-class ResourceAttrRO(object):
-    class NAMESPACE(object):
+class ResourceAttrRO:
+    class NAMESPACE:
         SHELL_NAME = "shell_name"
         FAMILY_NAME = "family_name"
 
-    def __init__(self, name, namespace, default=None):
-        """Resource Attribute read-only.
-
-        :param str name:
-        :param str namespace:
-        :param str default:
-        """
+    def __init__(self, name: str, namespace: str, default=None):
         self.name = name
         self.namespace = namespace
         self.default = default
 
-    def get_key(self, instance):
-        """Get key.
+    def get_key(self, instance: GenericResourceConfig) -> str:
+        return f"{getattr(instance, self.namespace)}.{self.name}"
 
-        :param GenericResourceConfig instance:
-        :rtype: str
-        """
-        return "{}.{}".format(getattr(instance, self.namespace), self.name)
-
-    def __get__(self, instance, owner):
-        """Getter.
-
-        :param GenericResourceConfig instance:
-        :rtype: str
-        """
+    def __get__(self, instance: GenericResourceConfig, owner):
         if instance is None:
             return self
 
@@ -48,43 +35,29 @@ class ResourceAttrRO(object):
 
 class PasswordAttrRO(ResourceAttrRO):
     @lru_cache()
-    def _decrypt_password(self, api, attr_value):
-        """Decrypt password.
-
-        :param cloudshell.api.cloudshell_api.CloudShellAPISession api:
-        :param str attr_value:
-        :return:
-        """
+    def _decrypt_password(
+        self, api: CloudShellAPISession | None, attr_value: str
+    ) -> str:
         if api:
             return api.DecryptPassword(attr_value).Value
         raise ResourceConfigException("Cannot decrypt password, API is not defined")
 
-    def __get__(self, instance, owner):
-        """Getter.
-
-        :param GenericResourceConfig instance:
-        :rtype: str
-        """
-        val = super(PasswordAttrRO, self).__get__(instance, owner)
+    def __get__(self, instance: GenericResourceConfig, owner):
+        val = super().__get__(instance, owner)
         if val is self or val is self.default:
             return val
         return self._decrypt_password(instance.api, val)
 
 
 class ResourceListAttrRO(ResourceAttrRO):
-    def __init__(self, name, namespace, sep=";", default=None):
+    def __init__(self, name: str, namespace: str, sep: str = ";", default=None):
         if default is None:
             default = []
-        super(ResourceListAttrRO, self).__init__(name, namespace, default)
+        super().__init__(name, namespace, default)
         self._sep = sep
 
-    def __get__(self, instance, owner):
-        """Getter.
-
-        :param GenericResourceConfig instance:
-        :rtype: list[str]
-        """
-        val = super(ResourceListAttrRO, self).__get__(instance, owner)
+    def __get__(self, instance: GenericResourceConfig, owner):
+        val = super().__get__(instance, owner)
         if val is self or val is self.default or not isinstance(val, str):
             return val
         return list(filter(bool, map(str.strip, val.split(self._sep))))
@@ -94,44 +67,33 @@ class ResourceBoolAttrRO(ResourceAttrRO):
     TRUE_VALUES = {"true", "yes", "y"}
     FALSE_VALUES = {"false", "no", "n"}
 
-    def __init__(self, name, namespace, default=False):
-        super(ResourceBoolAttrRO, self).__init__(name, namespace, default)
+    def __init__(self, name: str, namespace: str, default=False):
+        super().__init__(name, namespace, default)
 
-    def __get__(self, instance, owner):
-        """Getter.
-
-        :param GenericResourceConfig instance:
-        :rtype: bool
-        """
-        val = super(ResourceBoolAttrRO, self).__get__(instance, owner)
+    def __get__(self, instance: GenericResourceConfig, owner):
+        val = super().__get__(instance, owner)
         if val is self or val is self.default or not isinstance(val, str):
             return val
         if val.lower() in self.TRUE_VALUES:
             return True
         if val.lower() in self.FALSE_VALUES:
             return False
-        raise ValueError("{} is boolean attr, but value is {}".format(self.name, val))
+        raise ValueError(f"{self.name} is boolean attr, but value is {val}")
 
 
-class GenericResourceConfig(object):
+class GenericResourceConfig:
     def __init__(
         self,
-        shell_name=None,
-        name=None,
-        fullname=None,
-        address=None,
-        family_name=None,
-        attributes=None,
-        supported_os=None,
-        api=None,
-        cs_resource_id=None,
+        shell_name: str | None = None,
+        name: str | None = None,
+        fullname: str | None = None,
+        address: str | None = None,
+        family_name: str | None = None,
+        attributes: dict | None = None,
+        supported_os: list[str] | None = None,
+        api: CloudShellAPISession | None = None,
+        cs_resource_id: str | None = None,
     ):
-        """Init method.
-
-        :param str shell_name: Shell Name
-        :param str name: Resource Name
-        :param list supported_os: list of supported OS
-        """
         self.attributes = attributes or {}
         self.shell_name = shell_name
         self.name = name
@@ -139,7 +101,7 @@ class GenericResourceConfig(object):
         self.fullname = fullname
         self.address = address  # The IP address of the resource
         self.family_name = family_name  # The resource family
-        self.namespace_prefix = "{}".format(self.shell_name)
+        self.namespace_prefix = f"{self.shell_name}"
         self.api = api
         self.cs_resource_id = cs_resource_id
 
@@ -147,15 +109,14 @@ class GenericResourceConfig(object):
             raise DeprecationWarning("1gen Shells doesn't supported")
 
     @classmethod
-    def from_context(cls, shell_name, context, api=None, supported_os=None):
-        """Creates an instance of a Resource by given context.
-
-        :param str shell_name: Shell Name
-        :param list supported_os: list of supported OS
-        :param cloudshell.shell.core.driver_context.ResourceCommandContext context:
-        :param cloudshell.api.cloudshell_api.CloudShellAPISession api:
-        :rtype: GenericResourceConfig
-        """
+    def from_context(
+        cls,
+        shell_name: str,
+        context: ResourceCommandContext,
+        api: CloudShellAPISession | None = None,
+        supported_os: list[str] | None = None,
+    ) -> Self:
+        """Creates an instance of a Resource by given context."""
         return cls(
             shell_name=shell_name,
             name=context.resource.name,
