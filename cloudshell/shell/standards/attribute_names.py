@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 USER = "User"
 PASSWORD = "Password"
 ENABLE_PASSWORD = "Enable Password"

@@ -1,5 +1,5 @@
-import sys
 import unittest
+from unittest.mock import MagicMock
 
 from cloudshell.shell.standards.attribute_names import (
     DISABLE_SNMP,
@@ -14,11 +14,6 @@ from cloudshell.shell.standards.attribute_names import (
     SNMP_WRITE_COMMUNITY,
 )
 from cloudshell.shell.standards.resource_config_generic_models import GenericSnmpConfig
-
-if sys.version_info >= (3, 0):
-    from unittest.mock import MagicMock
-else:
-    from mock import MagicMock
 
 
 class TestGenericSnmpConfig(unittest.TestCase):
@@ -38,9 +33,7 @@ class TestGenericSnmpConfig(unittest.TestCase):
             ENABLE_SNMP: "True",
             DISABLE_SNMP: "False",
         }
-        attributes = {
-            "{}.{}".format(shell_name, key): value for key, value in attributes.items()
-        }
+        attributes = {f"{shell_name}.{key}": value for key, value in attributes.items()}
 
         config = GenericSnmpConfig(shell_name, attributes=attributes, api=api)
         self.assertEqual("community", config.snmp_read_community)

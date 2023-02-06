@@ -1,6 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import warnings
+from typing import TYPE_CHECKING
 
 from cloudshell.shell.core.driver_context import (
     AutoLoadAttribute,
@@ -8,17 +9,19 @@ from cloudshell.shell.core.driver_context import (
     AutoLoadResource,
 )
 
+if TYPE_CHECKING:
+    from cloudshell.shell.standards.autoload_generic_models import GenericResourceModel
+    from cloudshell.shell.standards.core.autoload.resource_model import AbstractResource
 
-class AutoloadDetailsBuilder(object):
+
+class AutoloadDetailsBuilder:
     def __init__(
-        self, resource_model, filter_empty_modules=False, use_new_unique_id=False
+        self,
+        resource_model: GenericResourceModel,
+        filter_empty_modules: bool = False,
+        use_new_unique_id: bool = False,
     ):
-        """Autoload Details Builder.
-
-        :param cloudshell.shell.standards.autoload_generic_models.GenericResourceModel resource_model:  # noqa: E501
-        :param bool filter_empty_modules:
-        :param bool use_new_unique_id: use CS resource Id for creating unique id
-        """
+        """Autoload Details Builder."""
         if not filter_empty_modules:
             # todo v2.0 - set filter_empty_modules=True by default
             warnings.warn(
@@ -37,12 +40,7 @@ class AutoloadDetailsBuilder(object):
             resource_model.cs_resource_id if use_new_unique_id else None
         )
 
-    def _build_branch(self, resource):
-        """Build a branch.
-
-        :param cloudshell.shell.standards.core.autoload.resource_model.AbstractResource resource: # noqa: E501
-        :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
-        """
+    def _build_branch(self, resource: AbstractResource) -> AutoLoadDetails:
         resource.shell_name = resource.shell_name or self.resource_model.shell_name
         relative_address = str(resource.relative_address)
         unique_identifier = get_unique_id(self._cs_resource_id, resource)
@@ -69,7 +67,7 @@ class AutoloadDetailsBuilder(object):
             if value is not None
         ]
         for child_resource in resource.extract_sub_resources():
-            # skip modules and sub modules without children
+            # skip modules and submodules without children
             if self._filter_empty_modules and is_module_without_children(
                 child_resource
             ):
@@ -79,31 +77,24 @@ class AutoloadDetailsBuilder(object):
             autoload_details.attributes.extend(child_details.attributes)
         return autoload_details
 
-    def build_details(self):
-        """Build resource details.
-
-        :rtype: cloudshell.shell.core.driver_context.AutoLoadDetails
-        """
+    def build_details(self) -> AutoLoadDetails:
         return self._build_branch(self.resource_model)
 
 
-def get_unique_id(cs_resource_id, resource):
+def get_unique_id(cs_resource_id: str, resource: AbstractResource) -> str:
     """Get unique ID for the resource.
 
     If we have cs_resource_id use it for creating unique id.
-    :type cs_resource_id: str
-    :param cloudshell.shell.standards.core.autoload.resource_model.AbstractResource resource:  # noqa: E501
-    :rtype: str
     """
     if cs_resource_id:
-        unique_id = "{}+{}".format(cs_resource_id, resource.unique_identifier)
+        unique_id = f"{cs_resource_id}+{resource.unique_identifier}"
         unique_id = str(hash(unique_id))
     else:
         unique_id = str(resource.unique_identifier)
     return unique_id
 
 
-def is_module_without_children(resource):
+def is_module_without_children(resource: AbstractResource) -> bool:
     from cloudshell.shell.standards.autoload_generic_models import (
         GenericModule,
         GenericSubModule,

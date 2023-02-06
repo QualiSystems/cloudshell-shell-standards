@@ -1,13 +1,10 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 import functools
 
 
-def attr_length_validator(max_length):
+def attr_length_validator(max_length: int):
     def decorator_func(func):
         @functools.wraps(func)
         def inner(*args, **kwargs):
-
             nargs = []
             for arg in args:
                 if isinstance(arg, str):
