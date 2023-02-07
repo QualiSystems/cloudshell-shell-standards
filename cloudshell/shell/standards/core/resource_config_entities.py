@@ -7,6 +7,7 @@ from typing_extensions import Self
 
 from cloudshell.shell.core.driver_context import ResourceCommandContext
 
+from cloudshell.shell.standards.core.namespace import NAMESPACE
 from cloudshell.shell.standards.exceptions import ResourceConfigException
 
 if TYPE_CHECKING:
@@ -14,17 +15,15 @@ if TYPE_CHECKING:
 
 
 class ResourceAttrRO:
-    class NAMESPACE:
-        SHELL_NAME = "shell_name"
-        FAMILY_NAME = "family_name"
-
-    def __init__(self, name: str, namespace: str, default=None):
+    def __init__(
+        self, name: str, namespace: NAMESPACE = NAMESPACE.SHELL_NAME, default=None
+    ):
         self.name = name
         self.namespace = namespace
         self.default = default
 
     def get_key(self, instance: GenericResourceConfig) -> str:
-        return f"{getattr(instance, self.namespace)}.{self.name}"
+        return f"{getattr(instance, self.namespace.value)}.{self.name}"
 
     def __get__(self, instance: GenericResourceConfig, owner):
         if instance is None:
@@ -50,7 +49,13 @@ class PasswordAttrRO(ResourceAttrRO):
 
 
 class ResourceListAttrRO(ResourceAttrRO):
-    def __init__(self, name: str, namespace: str, sep: str = ";", default=None):
+    def __init__(
+        self,
+        name: str,
+        namespace: NAMESPACE = NAMESPACE.SHELL_NAME,
+        sep: str = ";",
+        default=None,
+    ):
         if default is None:
             default = []
         super().__init__(name, namespace, default)
@@ -67,7 +72,9 @@ class ResourceBoolAttrRO(ResourceAttrRO):
     TRUE_VALUES = {"true", "yes", "y"}
     FALSE_VALUES = {"false", "no", "n"}
 
-    def __init__(self, name: str, namespace: str, default=False):
+    def __init__(
+        self, name: str, namespace: NAMESPACE = NAMESPACE.SHELL_NAME, default=False
+    ):
         super().__init__(name, namespace, default)
 
     def __get__(self, instance: GenericResourceConfig, owner):
