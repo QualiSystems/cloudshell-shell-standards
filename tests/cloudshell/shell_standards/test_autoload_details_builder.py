@@ -121,28 +121,6 @@ class TestAutoloadDetailsBuilderFiltering(TestCase):
             "Port 2-3",
         }
 
-        details = self._resource.build(filter_empty_modules=True)
-        resource_names = {resource.name for resource in details.resources}
-        self.assertEqual(resource_names, expected_resource_names)
-
-    def test_by_default_not_filter_modules(self):
-        expected_resource_names = {
-            "Module 4",
-            "Port 1-1-1",
-            "SubModule 1",
-            "Module 3",
-            "Module 2",
-            "Port 1-2-2",
-            "Port 1-2-1",
-            "Port 1-3",
-            "SubModule 2",
-            "SubModule 1",
-            "Module 1",
-            "SubModule 1",
-            "Chassis 1",
-            "SubModule 2",
-            "Port 2-3",
-        }
         details = self._resource.build()
         resource_names = {resource.name for resource in details.resources}
         self.assertEqual(resource_names, expected_resource_names)
@@ -151,7 +129,7 @@ class TestAutoloadDetailsBuilderFiltering(TestCase):
 def test_autoload_details_builder_with_cs_id(resource):
     cs_resource_id = uuid.uuid4()
     resource.cs_resource_id = cs_resource_id
-    structure = resource.build(use_new_unique_id=True)
+    structure = resource.build()
 
     unique_ids = [resource.unique_identifier for resource in structure.resources]
     assert len(set(unique_ids)) == len(unique_ids), "Not all unique ids are unique"
