@@ -42,7 +42,7 @@ class GenericResourceModel(AbstractResource):
         resource_name: str,
         shell_name: str,
         family_name: str,
-        cs_resource_id: str | None = None,
+        cs_resource_id: str,
     ):
         if family_name not in self.SUPPORTED_FAMILY_NAMES:
             families = ", ".join(self.SUPPORTED_FAMILY_NAMES)
@@ -77,12 +77,8 @@ class GenericResourceModel(AbstractResource):
             cs_resource_id=resource_config.cs_resource_id,
         )
 
-    def build(
-        self, filter_empty_modules: bool = False, use_new_unique_id: bool = False
-    ) -> AutoLoadDetails:
-        return AutoloadDetailsBuilder(
-            self, filter_empty_modules, use_new_unique_id
-        ).build_details()
+    def build(self) -> AutoLoadDetails:
+        return AutoloadDetailsBuilder(self).build_details()
 
 
 class GenericChassis(AbstractResource):

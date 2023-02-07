@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from typing import TYPE_CHECKING
 
 from cloudshell.shell.core.driver_context import (
@@ -15,30 +14,9 @@ if TYPE_CHECKING:
 
 
 class AutoloadDetailsBuilder:
-    def __init__(
-        self,
-        resource_model: GenericResourceModel,
-        filter_empty_modules: bool = False,
-        use_new_unique_id: bool = False,
-    ):
-        """Autoload Details Builder."""
-        if not filter_empty_modules:
-            # todo v2.0 - set filter_empty_modules=True by default
-            warnings.warn(
-                "Empty modules would be filtered by default in next major version",
-                PendingDeprecationWarning,
-            )
-        if not use_new_unique_id:
-            # todo v2.0 - always use CS Id for generating unique id
-            warnings.warn(
-                "CS resource Id would be used by default in next major version",
-                PendingDeprecationWarning,
-            )
+    def __init__(self, resource_model: GenericResourceModel):
         self.resource_model = resource_model
-        self._filter_empty_modules = filter_empty_modules
-        self._cs_resource_id = (
-            resource_model.cs_resource_id if use_new_unique_id else None
-        )
+        self._cs_resource_id = resource_model.cs_resource_id
 
     def _build_branch(self, resource: AbstractResource) -> AutoLoadDetails:
         resource.shell_name = resource.shell_name or self.resource_model.shell_name
@@ -68,9 +46,7 @@ class AutoloadDetailsBuilder:
         ]
         for child_resource in resource.extract_sub_resources():
             # skip modules and submodules without children
-            if self._filter_empty_modules and is_module_without_children(
-                child_resource
-            ):
+            if is_module_without_children(child_resource):
                 continue
             child_details = self._build_branch(child_resource)
             autoload_details.resources.extend(child_details.resources)
