@@ -10,6 +10,7 @@ from cloudshell.shell.standards.core.autoload.core_entities import (
     InstanceAttribute,
     RelativeAddress,
 )
+from cloudshell.shell.standards.core.namespace import NAMESPACE
 from cloudshell.shell.standards.exceptions import ResourceModelException
 
 SUB_RESOURCE_TYPE = TypeVar("SUB_RESOURCE_TYPE", bound="ResourceNode")
@@ -77,20 +78,19 @@ class NamespaceAttributeContainer(AttributeContainer):
 class ResourceAttribute(AttributeModel):
     _RESOURCE_MODEL_ATTR = "resource_model"
 
-    class NAMESPACE:
-        """Attribute Levels, attributes defined in LVLDefinedAttributeContainer."""
-
-        SHELL_NAME = "shell_name"
-        FAMILY_NAME = "family_name"
-
-    def __init__(self, name: str, namespace_attribute: str, default_value: Any = None):
+    def __init__(
+        self,
+        name: str,
+        namespace_attribute: NAMESPACE = NAMESPACE.SHELL_NAME,
+        default_value: Any = None,
+    ):
         super().__init__(name, default_value)
         self.namespace_attribute = namespace_attribute
 
     def attribute_name(self, instance: NamespaceAttributeContainer) -> str:
         """Generate attribute name for the specified prefix."""
-        namespace = getattr(instance, self.namespace_attribute)
-        if self.namespace_attribute == self.NAMESPACE.SHELL_NAME and namespace:
+        namespace = getattr(instance, self.namespace_attribute.value)
+        if self.namespace_attribute is NAMESPACE.SHELL_NAME and namespace:
             resource_model = getattr(instance, self._RESOURCE_MODEL_ATTR)
             if resource_model:
                 namespace = ".".join((namespace, resource_model))
