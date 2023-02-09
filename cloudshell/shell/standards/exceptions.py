@@ -1,6 +1,10 @@
-class ResourceModelException(Exception):
+class BaseStandardException(Exception):
     pass
 
 
-class ResourceConfigException(Exception):
+class ResourceModelException(BaseStandardException):
+    pass
+
+
+class ResourceConfigException(BaseStandardException):
     pass

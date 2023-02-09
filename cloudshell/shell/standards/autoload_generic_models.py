@@ -5,9 +5,12 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import Self
 
-from cloudshell.api.cloudshell_api import CloudShellAPISession, ResourceInfo
+from cloudshell.api.cloudshell_api import CloudShellAPISession
 
 import cloudshell.shell.standards.attribute_names as attribute_names
+from cloudshell.shell.standards.core.autoload.existed_resource_info import (
+    ExistedResourceInfo,
+)
 from cloudshell.shell.standards.core.autoload.resource_model import (
     AbstractResource,
     ResourceAttribute,
@@ -44,7 +47,6 @@ class GenericResourceModel(AbstractResource):
         resource_name: str,
         shell_name: str,
         family_name: str,
-        cs_resource_id: str,
         api: CloudShellAPISession,
     ):
         if family_name not in self.SUPPORTED_FAMILY_NAMES:
@@ -54,8 +56,9 @@ class GenericResourceModel(AbstractResource):
                 f"Family name should be one of: {families}"
             )
         super().__init__(None, shell_name, name=resource_name, family_name=family_name)
-        self.cs_resource_id = cs_resource_id
         self._api = api
+        self._existed_resource_info = ExistedResourceInfo(resource_name, api)
+        self._existed_resource_info.load_data()
 
     @property
     @abstractmethod
@@ -78,16 +81,11 @@ class GenericResourceModel(AbstractResource):
             resource_config.name,
             resource_config.shell_name,
             resource_config.family_name,
-            cs_resource_id=resource_config.cs_resource_id,
             api=resource_config.api,
         )
 
     def build(self) -> AutoLoadDetails:
-        r_info = self._get_existed_resource_info()
-        return AutoloadDetailsBuilder(self, r_info).build_details()
-
-    def _get_existed_resource_info(self) -> ResourceInfo:
-        return self._api.GetResourceDetails(self.cs_resource_id)
+        return AutoloadDetailsBuilder(self, self._existed_resource_info).build_details()
 
 
 class GenericChassis(AbstractResource):
