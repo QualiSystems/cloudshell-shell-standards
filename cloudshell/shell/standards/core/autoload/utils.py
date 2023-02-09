@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cloudshell.api.cloudshell_api import ResourceInfo
 from cloudshell.shell.core.driver_context import (
     AutoLoadAttribute,
     AutoLoadDetails,
     AutoLoadResource,
+)
+
+from cloudshell.shell.standards.core.autoload.existed_resource_info import (
+    ExistedResourceInfo,
 )
 
 if TYPE_CHECKING:
@@ -16,12 +19,12 @@ if TYPE_CHECKING:
 
 class AutoloadDetailsBuilder:
     def __init__(
-        self, resource_model: GenericResourceModel, existed_resource_info: ResourceInfo
+        self,
+        resource_model: GenericResourceModel,
+        existed_resource_info: ExistedResourceInfo,
     ):
         self._resource_model = resource_model
-        self._cs_resource_id = resource_model.cs_resource_id
         self._existed_resource_info = existed_resource_info
-        self._full_name_to_resource = _build_map_name_to_resource(existed_resource_info)
 
     def _build_branch(self, resource: AbstractResource) -> AutoLoadDetails:
         resource.shell_name = resource.shell_name or self._resource_model.shell_name
@@ -70,33 +73,25 @@ class AutoloadDetailsBuilder:
         ]
 
     def _get_uniq_id(self, resource: AbstractResource) -> str:
-        res = self._full_name_to_resource.get(resource.full_name)
-        if res:
-            uniq_id = res.UniqeIdentifier
-        else:
-            uniq_id = get_unique_id(self._cs_resource_id, resource)
+        uniq_id = self._existed_resource_info.get_uniq_id(resource.full_name)
+        if not uniq_id:
+            uniq_id = get_unique_id(self._existed_resource_info, resource)
         return uniq_id
 
     def _get_relative_address(self, resource: AbstractResource) -> str:
-        res = self._full_name_to_resource.get(resource.full_name)
-        if res:
-            relative_address = res.FullAddress
+        addr = self._existed_resource_info.get_address(resource.full_name)
+        if addr:
+            # we should return address without root resource name
+            addr = addr.split("/", 1)[-1]
         else:
-            relative_address = str(resource.relative_address)
-        return relative_address
+            addr = str(resource.relative_address)
+        return addr
 
 
-def get_unique_id(cs_resource_id: str, resource: AbstractResource) -> str:
-    """Get unique ID for the resource.
-
-    If we have cs_resource_id use it for creating unique id.
-    """
-    if cs_resource_id:
-        unique_id = f"{cs_resource_id}+{resource.unique_identifier}"
-        unique_id = str(hash(unique_id))
-    else:
-        unique_id = str(resource.unique_identifier)
-    return unique_id
+def get_unique_id(r_info: ExistedResourceInfo, resource: AbstractResource) -> str:
+    """Get unique ID for the resource."""
+    unique_id = f"{r_info.uniq_id}+{resource.unique_identifier}"
+    return str(hash(unique_id))
 
 
 def is_module_without_children(resource: AbstractResource) -> bool:
@@ -112,12 +107,3 @@ def is_module_without_children(resource: AbstractResource) -> bool:
         return all(map(is_module_without_children, children))
     else:
         return False
-
-
-def _build_map_name_to_resource(
-    existed_resource_info: ResourceInfo,
-) -> dict[str, ResourceInfo]:
-    dict_ = {existed_resource_info.Name: existed_resource_info}
-    for child_info in existed_resource_info.ChildResources:
-        dict_.update(_build_map_name_to_resource(child_info))
-    return dict_
