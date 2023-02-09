@@ -1,17 +1,30 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from typing_extensions import Self
-
-from cloudshell.shell.core.driver_context import ResourceCommandContext
 
 from cloudshell.shell.standards.core.namespace import NAMESPACE
 from cloudshell.shell.standards.exceptions import ResourceConfigException
 
 if TYPE_CHECKING:
     from cloudshell.api.cloudshell_api import CloudShellAPISession
+    from cloudshell.shell.core.driver_context import (
+        AutoLoadCommandContext,
+        InitCommandContext,
+        ResourceCommandContext,
+        ResourceRemoteCommandContext,
+        UnreservedResourceCommandContext,
+    )
+
+    RESOURCE_CONTEXT_TYPES = Union[
+        ResourceCommandContext,
+        InitCommandContext,
+        AutoLoadCommandContext,
+        UnreservedResourceCommandContext,
+        ResourceRemoteCommandContext,
+    ]
 
 
 class ResourceAttrRO:
@@ -91,26 +104,21 @@ class ResourceBoolAttrRO(ResourceAttrRO):
 class GenericResourceConfig:
     def __init__(
         self,
-        shell_name: str | None = None,
-        name: str | None = None,
-        fullname: str | None = None,
-        address: str | None = None,
-        family_name: str | None = None,
-        attributes: dict | None = None,
-        supported_os: list[str] | None = None,
-        api: CloudShellAPISession | None = None,
-        cs_resource_id: str | None = None,
+        shell_name: str,
+        name: str,
+        fullname: str,
+        address: str,
+        family_name: str,
+        attributes: dict,
+        api: CloudShellAPISession,
     ):
-        self.attributes = attributes or {}
+        self.attributes = attributes
         self.shell_name = shell_name
         self.name = name
-        self.supported_os = supported_os or []
         self.fullname = fullname
         self.address = address  # The IP address of the resource
         self.family_name = family_name  # The resource family
-        self.namespace_prefix = f"{self.shell_name}"
         self.api = api
-        self.cs_resource_id = cs_resource_id
 
         if not shell_name:
             raise DeprecationWarning("1gen Shells doesn't supported")
@@ -118,20 +126,15 @@ class GenericResourceConfig:
     @classmethod
     def from_context(
         cls,
-        shell_name: str,
-        context: ResourceCommandContext,
-        api: CloudShellAPISession | None = None,
-        supported_os: list[str] | None = None,
+        context: RESOURCE_CONTEXT_TYPES,
+        api: CloudShellAPISession,
     ) -> Self:
-        """Creates an instance of a Resource by given context."""
         return cls(
-            shell_name=shell_name,
+            shell_name=context.resource.model,
             name=context.resource.name,
             fullname=context.resource.fullname,
             address=context.resource.address,
             family_name=context.resource.family,
             attributes=dict(context.resource.attributes),
-            supported_os=supported_os,
             api=api,
-            cs_resource_id=context.resource.id,
         )

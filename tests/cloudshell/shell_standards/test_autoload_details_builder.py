@@ -1,5 +1,4 @@
 import uuid
-from unittest import TestCase
 
 import pytest
 
@@ -26,7 +25,7 @@ class TestNetworkingResourceModel(GenericResourceModel):
         return _NetworkingEntities
 
 
-def _create_resource():
+def _create_resource(api):
     """Creates a resource.
 
     Resource structure:
@@ -93,37 +92,35 @@ def _create_resource():
     chassis.connect_module(module3)
     chassis.connect_module(module4)
 
-    resource = TestNetworkingResourceModel("resource name", "shell name", "CS_Switch")
+    resource = TestNetworkingResourceModel(
+        "resource name", "shell name", "CS_Switch", api
+    )
     resource.connect_chassis(chassis)
     return resource
 
 
 @pytest.fixture()
-def resource():
-    return _create_resource()
+def resource(api):
+    return _create_resource(api)
 
 
-class TestAutoloadDetailsBuilderFiltering(TestCase):
-    def setUp(self):
-        self._resource = _create_resource()
+def test_filtering_empty_modules(resource):
+    expected_resource_names = {
+        "Chassis 1",
+        "Module 1",
+        "SubModule 1",
+        "Port 1-1-1",
+        "SubModule 2",
+        "Port 1-2-1",
+        "Port 1-2-2",
+        "Port 1-3",
+        "Module 2",
+        "Port 2-3",
+    }
 
-    def test_filtering_empty_modules(self):
-        expected_resource_names = {
-            "Chassis 1",
-            "Module 1",
-            "SubModule 1",
-            "Port 1-1-1",
-            "SubModule 2",
-            "Port 1-2-1",
-            "Port 1-2-2",
-            "Port 1-3",
-            "Module 2",
-            "Port 2-3",
-        }
-
-        details = self._resource.build()
-        resource_names = {resource.name for resource in details.resources}
-        self.assertEqual(resource_names, expected_resource_names)
+    details = resource.build()
+    resource_names = {resource.name for resource in details.resources}
+    assert resource_names == expected_resource_names
 
 
 def test_autoload_details_builder_with_cs_id(resource):
