@@ -16,7 +16,7 @@ from cloudshell.shell.standards.core.autoload.resource_model import (
     ResourceAttribute,
 )
 from cloudshell.shell.standards.core.autoload.utils import AutoloadDetailsBuilder
-from cloudshell.shell.standards.core.namespace import NAMESPACE
+from cloudshell.shell.standards.core.namespace_type import NameSpaceType
 from cloudshell.shell.standards.exceptions import ResourceModelException
 
 if TYPE_CHECKING:
@@ -33,14 +33,20 @@ class GenericResourceModel(AbstractResource):
 
     # Attributes
     contact_name = ResourceAttribute(
-        attribute_names.CONTACT_NAME, NAMESPACE.FAMILY_NAME
+        attribute_names.CONTACT_NAME, NameSpaceType.FAMILY_NAME
     )
-    system_name = ResourceAttribute(attribute_names.SYSTEM_NAME, NAMESPACE.FAMILY_NAME)
-    location = ResourceAttribute(attribute_names.LOCATION, NAMESPACE.FAMILY_NAME)
-    model = ResourceAttribute(attribute_names.MODEL, NAMESPACE.FAMILY_NAME)
-    model_name = ResourceAttribute(attribute_names.MODEL_NAME, NAMESPACE.FAMILY_NAME)
-    os_version = ResourceAttribute(attribute_names.OS_VERSION, NAMESPACE.FAMILY_NAME)
-    vendor = ResourceAttribute(attribute_names.VENDOR, NAMESPACE.FAMILY_NAME)
+    system_name = ResourceAttribute(
+        attribute_names.SYSTEM_NAME, NameSpaceType.FAMILY_NAME
+    )
+    location = ResourceAttribute(attribute_names.LOCATION, NameSpaceType.FAMILY_NAME)
+    model = ResourceAttribute(attribute_names.MODEL, NameSpaceType.FAMILY_NAME)
+    model_name = ResourceAttribute(
+        attribute_names.MODEL_NAME, NameSpaceType.FAMILY_NAME
+    )
+    os_version = ResourceAttribute(
+        attribute_names.OS_VERSION, NameSpaceType.FAMILY_NAME
+    )
+    vendor = ResourceAttribute(attribute_names.VENDOR, NameSpaceType.FAMILY_NAME)
 
     def __init__(
         self,
@@ -97,7 +103,9 @@ class GenericChassis(AbstractResource):
     # Attributes
     model = ResourceAttribute(attribute_names.MODEL)
     serial_number = ResourceAttribute(attribute_names.SERIAL_NUMBER)
-    model_name = ResourceAttribute(attribute_names.MODEL_NAME, NAMESPACE.FAMILY_NAME)
+    model_name = ResourceAttribute(
+        attribute_names.MODEL_NAME, NameSpaceType.FAMILY_NAME
+    )
 
     def connect_module(self, module: GenericModule) -> None:
         """Connect module sub resource."""
@@ -122,7 +130,9 @@ class GenericModule(AbstractResource):
     model = ResourceAttribute(attribute_names.MODEL)
     version = ResourceAttribute(attribute_names.VERSION)
     serial_number = ResourceAttribute(attribute_names.SERIAL_NUMBER)
-    model_name = ResourceAttribute(attribute_names.MODEL_NAME, NAMESPACE.FAMILY_NAME)
+    model_name = ResourceAttribute(
+        attribute_names.MODEL_NAME, NameSpaceType.FAMILY_NAME
+    )
 
     def connect_sub_module(self, sub_module: GenericSubModule) -> None:
         """Connect sub_module sub resource."""
@@ -143,7 +153,9 @@ class GenericSubModule(AbstractResource):
     model = ResourceAttribute(attribute_names.MODEL)
     version = ResourceAttribute(attribute_names.VERSION)
     serial_number = ResourceAttribute(attribute_names.SERIAL_NUMBER)
-    model_name = ResourceAttribute(attribute_names.MODEL_NAME, NAMESPACE.FAMILY_NAME)
+    model_name = ResourceAttribute(
+        attribute_names.MODEL_NAME, NameSpaceType.FAMILY_NAME
+    )
 
     def connect_port(self, port: BasePort) -> None:
         """Connect port sub resource."""
@@ -157,7 +169,9 @@ class BasePort(AbstractResource):
     _RESOURCE_MODEL = "GenericPort"
 
     # Attributes
-    model_name = ResourceAttribute(attribute_names.MODEL_NAME, NAMESPACE.FAMILY_NAME)
+    model_name = ResourceAttribute(
+        attribute_names.MODEL_NAME, NameSpaceType.FAMILY_NAME
+    )
     ipv4_address = ResourceAttribute(attribute_names.IPV4_ADDRESS)
     ipv6_address = ResourceAttribute(attribute_names.IPV6_ADDRESS)
     mac_address = ResourceAttribute(attribute_names.MAC_ADDRESS)
@@ -186,7 +200,9 @@ class GenericPowerPort(AbstractResource):
 
     # Attributes
     model = ResourceAttribute(attribute_names.MODEL)
-    model_name = ResourceAttribute(attribute_names.MODEL_NAME, NAMESPACE.FAMILY_NAME)
+    model_name = ResourceAttribute(
+        attribute_names.MODEL_NAME, NameSpaceType.FAMILY_NAME
+    )
     port_description = ResourceAttribute(attribute_names.PORT_DESCRIPTION)
     serial_number = ResourceAttribute(attribute_names.SERIAL_NUMBER)
     version = ResourceAttribute(attribute_names.VERSION)
@@ -199,7 +215,9 @@ class GenericPortChannel(AbstractResource):
     _FAMILY_NAME = "CS_PortChannel"
 
     # Attributes
-    model_name = ResourceAttribute(attribute_names.MODEL_NAME, NAMESPACE.FAMILY_NAME)
+    model_name = ResourceAttribute(
+        attribute_names.MODEL_NAME, NameSpaceType.FAMILY_NAME
+    )
     associated_ports = ResourceAttribute(attribute_names.ASSOCIATED_PORTS)
     ipv4_address = ResourceAttribute(attribute_names.IPV4_ADDRESS)
     ipv6_address = ResourceAttribute(attribute_names.IPV6_ADDRESS)

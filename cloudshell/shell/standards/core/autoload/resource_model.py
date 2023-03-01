@@ -10,7 +10,7 @@ from cloudshell.shell.standards.core.autoload.core_entities import (
     InstanceAttribute,
     RelativeAddress,
 )
-from cloudshell.shell.standards.core.namespace import NAMESPACE
+from cloudshell.shell.standards.core.namespace_type import NameSpaceType
 from cloudshell.shell.standards.exceptions import ResourceModelException
 
 SUB_RESOURCE_TYPE = TypeVar("SUB_RESOURCE_TYPE", bound="ResourceNode")
@@ -89,7 +89,7 @@ class ResourceAttribute(AttributeModel):
     def __init__(
         self,
         name: str,
-        namespace_attribute: NAMESPACE = NAMESPACE.SHELL_NAME,
+        namespace_attribute: NameSpaceType = NameSpaceType.SHELL_NAME,
         default_value: Any = None,
     ):
         super().__init__(name, default_value)
@@ -98,7 +98,7 @@ class ResourceAttribute(AttributeModel):
     def attribute_name(self, instance: NamespaceAttributeContainer) -> str:
         """Generate attribute name for the specified prefix."""
         namespace = getattr(instance, self.namespace_attribute.value)
-        if self.namespace_attribute is NAMESPACE.SHELL_NAME and namespace:
+        if self.namespace_attribute is NameSpaceType.SHELL_NAME and namespace:
             resource_model = getattr(instance, self._RESOURCE_MODEL_ATTR)
             if resource_model:
                 namespace = ".".join((namespace, resource_model))
