@@ -1,46 +1,85 @@
-from cloudshell.shell.standards import attribute_names
-from cloudshell.shell.standards.core.resource_config_entities import (
-    GenericResourceConfig,
-    PasswordAttrRO,
-    ResourceAttrRO,
-)
+from enum import Enum
+
+from attrs import define
+from attrs.validators import ge
+
+from cloudshell.shell.standards import attribute_names as attr_name
+from cloudshell.shell.standards.core.resource_conf import BaseConfig, attr
 
 
-class GenericSnmpConfig(GenericResourceConfig):
-    snmp_read_community = PasswordAttrRO(attribute_names.SNMP_READ_COMMUNITY)
-    snmp_write_community = PasswordAttrRO(attribute_names.SNMP_WRITE_COMMUNITY)
-    snmp_v3_user = ResourceAttrRO(attribute_names.SNMP_V3_USER)
-    snmp_v3_password = PasswordAttrRO(attribute_names.SNMP_V3_PASSWORD)
-    snmp_v3_private_key = ResourceAttrRO(attribute_names.SNMP_V3_PRIVATE_KEY)
-    snmp_v3_auth_protocol = ResourceAttrRO(attribute_names.SNMP_V3_AUTH_PROTOCOL)
-    snmp_v3_priv_protocol = ResourceAttrRO(attribute_names.SNMP_V3_PRIVACY_PROTOCOL)
-    snmp_version = ResourceAttrRO(attribute_names.SNMP_VERSION)
-    enable_snmp = ResourceAttrRO(attribute_names.ENABLE_SNMP)
-    disable_snmp = ResourceAttrRO(attribute_names.DISABLE_SNMP)
+class SnmpVersion(Enum):
+    V1 = "v1"
+    V2C = "v2c"
+    V3 = "v3"
 
 
-class GenericCLIConfig(GenericResourceConfig):
-    user = ResourceAttrRO(attribute_names.USER)
-    password = PasswordAttrRO(attribute_names.PASSWORD)
-    enable_password = PasswordAttrRO(attribute_names.ENABLE_PASSWORD)
-    cli_connection_type = ResourceAttrRO(attribute_names.CLI_CONNECTION_TYPE)
-    cli_tcp_port = ResourceAttrRO(attribute_names.CLI_TCP_PORT)
-    sessions_concurrency_limit = ResourceAttrRO(
-        attribute_names.SESSION_CONCURRENCY_LIMIT
+class SnmpV3AuthProtocol(Enum):
+    NO_AUTHENTICATION_PROTOCOL = "No Authentication Protocol"
+    MD5 = "MD5"
+    SHA = "SHA"
+
+
+class SnmpV3PrivProtocol(Enum):
+    NO_PRIVACY_PROTOCOL = "No Privacy Protocol"
+    DES = "DES"
+    DES3 = "3DES-EDE"
+    AES128 = "AES-128"
+    AES192 = "AES-192"
+    AES256 = "AES-256"
+
+
+@define(slots=False, str=False)
+class GenericSnmpConfig(BaseConfig):
+    snmp_read_community: str = attr(attr_name.SNMP_READ_COMMUNITY, is_password=True)
+    snmp_write_community: str = attr(attr_name.SNMP_WRITE_COMMUNITY, is_password=True)
+    snmp_v3_user: str = attr(attr_name.SNMP_V3_USER)
+    snmp_v3_password: str = attr(attr_name.SNMP_V3_PASSWORD, is_password=True)
+    snmp_v3_private_key: str = attr(attr_name.SNMP_V3_PRIVATE_KEY)
+    snmp_v3_auth_protocol: SnmpV3AuthProtocol = attr(attr_name.SNMP_V3_AUTH_PROTOCOL)
+    snmp_v3_priv_protocol: SnmpV3PrivProtocol = attr(attr_name.SNMP_V3_PRIVACY_PROTOCOL)
+    snmp_version: SnmpVersion = attr(attr_name.SNMP_VERSION, default=SnmpVersion.V2C)
+    enable_snmp: bool = attr(attr_name.ENABLE_SNMP)
+    disable_snmp: bool = attr(attr_name.DISABLE_SNMP)
+
+
+class CliConnectionType(Enum):
+    AUTO = "Auto"
+    CONSOLE = "Console"
+    SSH = "SSH"
+    TELNET = "Telnet"
+    TCP = "TCP"
+
+
+@define(slots=False, str=False)
+class GenericCLIConfig(BaseConfig):
+    user: str = attr(attr_name.USER)
+    password: str = attr(attr_name.PASSWORD, is_password=True)
+    enable_password: str = attr(attr_name.ENABLE_PASSWORD, is_password=True)
+    cli_connection_type: CliConnectionType = attr(attr_name.CLI_CONNECTION_TYPE)
+    cli_tcp_port: int = attr(attr_name.CLI_TCP_PORT, validator=ge(0))
+    sessions_concurrency_limit: int = attr(
+        attr_name.SESSION_CONCURRENCY_LIMIT, validator=ge(1)
     )
 
 
-class GenericConsoleServerConfig(GenericResourceConfig):
-    console_server_ip_address = ResourceAttrRO(
-        attribute_names.CONSOLE_SERVER_IP_ADDRESS
-    )
-    console_user = ResourceAttrRO(attribute_names.CONSOLE_USER)
-    console_port = ResourceAttrRO(attribute_names.CONSOLE_PORT)
-    console_password = PasswordAttrRO(attribute_names.CONSOLE_PASSWORD)
+@define(slots=False, str=False)
+class GenericConsoleServerConfig(BaseConfig):
+    console_server_ip_address: str = attr(attr_name.CONSOLE_SERVER_IP_ADDRESS)
+    console_user: str = attr(attr_name.CONSOLE_USER)
+    console_port: int = attr(attr_name.CONSOLE_PORT, validator=ge(0))
+    console_password: str = attr(attr_name.CONSOLE_PASSWORD, is_password=True)
 
 
-class GenericBackupConfig(GenericResourceConfig):
-    backup_location = ResourceAttrRO(attribute_names.BACKUP_LOCATION)
-    backup_type = ResourceAttrRO(attribute_names.BACKUP_TYPE)
-    backup_user = ResourceAttrRO(attribute_names.BACKUP_USER)
-    backup_password = PasswordAttrRO(attribute_names.BACKUP_PASSWORD)
+class BackupType(Enum):
+    FILE_SYSTEM = "File System"
+    FTP = "FTP"
+    TFTP = "TFTP"
+    SCP = "SCP"
+
+
+@define(slots=False, str=False)
+class GenericBackupConfig(BaseConfig):
+    backup_location: str = attr(attr_name.BACKUP_LOCATION)
+    backup_type: BackupType = attr(attr_name.BACKUP_TYPE)
+    backup_user: str = attr(attr_name.BACKUP_USER)
+    backup_password: str = attr(attr_name.BACKUP_PASSWORD, is_password=True)
