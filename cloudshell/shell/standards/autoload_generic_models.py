@@ -22,9 +22,7 @@ from cloudshell.shell.standards.exceptions import ResourceModelException
 if TYPE_CHECKING:
     from cloudshell.shell.core.driver_context import AutoLoadDetails
 
-    from cloudshell.shell.standards.core.resource_config_entities import (
-        GenericResourceConfig,
-    )
+    from cloudshell.shell.standards.core.resource_conf import BaseConfig
 
 
 class GenericResourceModel(AbstractResource):
@@ -82,7 +80,7 @@ class GenericResourceModel(AbstractResource):
         )
 
     @classmethod
-    def from_resource_config(cls, resource_config: GenericResourceConfig) -> Self:
+    def from_resource_config(cls, resource_config: BaseConfig) -> Self:
         return cls(
             resource_config.name,
             resource_config.shell_name,
