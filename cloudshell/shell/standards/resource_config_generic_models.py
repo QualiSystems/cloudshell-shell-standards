@@ -72,6 +72,26 @@ class GenericCLIConfig(BaseConfig):
     sessions_concurrency_limit: int = attr(
         attr_name.SESSION_CONCURRENCY_LIMIT, validator=ge(1)
     )
+    access_key: str = ""
+    access_key_passphrase: str = ""
+
+    @classmethod
+    def from_context(
+        cls, context: RESOURCE_CONTEXT_TYPES, api: CloudShellAPISession
+    ) -> Self:
+        self = super().from_context(context, api)
+        self.access_key = cls._get_access_key(context)
+        return self
+
+    @staticmethod
+    def _get_access_key(context: RESOURCE_CONTEXT_TYPES) -> str:
+        try:
+            # reservation context not present in Autoload context
+            # cloud_info_access_key appears in CS 2021.1
+            key = context.reservation.cloud_info_access_key
+        except AttributeError:
+            key = ""
+        return key
 
 
 @define(slots=False, str=False)
