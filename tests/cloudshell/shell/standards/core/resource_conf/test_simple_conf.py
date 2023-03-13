@@ -5,11 +5,6 @@ from ipaddress import IPv4Address
 
 from attrs import define
 
-from cloudshell.shell.core.driver_context import (
-    ResourceCommandContext,
-    ResourceContextDetails,
-)
-
 from cloudshell.shell.standards.core.resource_conf import BaseConfig, attr
 
 
@@ -26,32 +21,7 @@ class SimpleConf(BaseConfig):
     ip: IPv4Address = attr("IP Address")
 
 
-def create_context(
-    r_name: str, r_model: str, r_family: str, r_address: str, attributes: dict[str, str]
-):
-    return ResourceCommandContext(
-        connectivity=None,
-        reservation=None,
-        connectors=[],
-        resource=ResourceContextDetails(
-            id=f"id-{r_name}",
-            name=r_name,
-            fullname=r_name,
-            type="Resource",
-            address=r_address,
-            model=r_model,
-            family=r_family,
-            description="",
-            attributes=attributes,
-            app_context=None,
-            networks_info=None,
-            shell_standard=None,
-            shell_standard_version=None,
-        ),
-    )
-
-
-def test_from_context(api):
+def test_from_context(api, context_creator):
     r_name = "resource name"
     r_model = "resource model"
     r_family = "resource family"
@@ -67,7 +37,7 @@ def test_from_context(api):
         "IP Address": str(ip_attr),
     }
     r_attributes = {f"{r_model}.{k}": v for k, v in r_attributes.items()}
-    context = create_context(r_name, r_model, r_family, r_address, r_attributes)
+    context = context_creator(r_name, r_model, r_family, r_address, r_attributes)
 
     conf = SimpleConf.from_context(context, api)
 
