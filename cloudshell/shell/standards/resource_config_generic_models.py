@@ -1,25 +1,37 @@
-from enum import Enum
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from attrs import define
 from attrs.validators import ge
 
 from cloudshell.shell.standards import attribute_names as attr_name
 from cloudshell.shell.standards.core.resource_conf import BaseConfig, attr
+from cloudshell.shell.standards.core.resource_conf.enum import EnumCaseInsensitive
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
+    from cloudshell.api.cloudshell_api import CloudShellAPISession
+
+    from cloudshell.shell.standards.core.resource_conf.attrs_converter import (
+        RESOURCE_CONTEXT_TYPES,
+    )
 
 
-class SnmpVersion(Enum):
+class SnmpVersion(EnumCaseInsensitive):
     V1 = "v1"
     V2C = "v2c"
     V3 = "v3"
 
 
-class SnmpV3AuthProtocol(Enum):
+class SnmpV3AuthProtocol(EnumCaseInsensitive):
     NO_AUTHENTICATION_PROTOCOL = "No Authentication Protocol"
     MD5 = "MD5"
     SHA = "SHA"
 
 
-class SnmpV3PrivProtocol(Enum):
+class SnmpV3PrivProtocol(EnumCaseInsensitive):
     NO_PRIVACY_PROTOCOL = "No Privacy Protocol"
     DES = "DES"
     DES3 = "3DES-EDE"
@@ -42,7 +54,7 @@ class GenericSnmpConfig(BaseConfig):
     disable_snmp: bool = attr(attr_name.DISABLE_SNMP)
 
 
-class CliConnectionType(Enum):
+class CliConnectionType(EnumCaseInsensitive):
     AUTO = "Auto"
     CONSOLE = "Console"
     SSH = "SSH"
@@ -70,7 +82,7 @@ class GenericConsoleServerConfig(BaseConfig):
     console_password: str = attr(attr_name.CONSOLE_PASSWORD, is_password=True)
 
 
-class BackupType(Enum):
+class BackupType(EnumCaseInsensitive):
     FILE_SYSTEM = "File System"
     FTP = "FTP"
     TFTP = "TFTP"
