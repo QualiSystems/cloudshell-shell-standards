@@ -72,6 +72,7 @@ class GenericCLIConfig(BaseConfig):
     sessions_concurrency_limit: int = attr(
         attr_name.SESSION_CONCURRENCY_LIMIT, validator=ge(1)
     )
+    vrf_management_name: str = attr(attr_name.VRF_MANAGEMENT_NAME)
     access_key: str = ""
     access_key_passphrase: str = ""
 
