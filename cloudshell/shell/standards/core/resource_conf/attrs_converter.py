@@ -246,7 +246,7 @@ class ResourceAttrsConverter(AbsResourceAttrsConverter):
     def _get_default(
         f: Attribute, meta: AttrMeta, str_type: str, attr_present: bool
     ) -> Any:
-        error = ValueError(f"Resource attribute {meta.name} is missed")
+        error = ValueError(f"Resource attribute {meta.name} is missing")
         default = f.default
 
         if default is RAISE:
