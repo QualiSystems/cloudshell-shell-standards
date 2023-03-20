@@ -49,3 +49,4 @@ def test_from_context(api, context_creator):
     assert conf.int_res_attr == int_attr
     assert conf.enum_res_attr is enum_attr
     assert conf.ip == ip_attr
+    assert str(conf) == f"{type(conf).__name__}({conf.name})"
