@@ -15,6 +15,7 @@ def test_cli_config(api, context_creator):
     user = "user"
     password = "password"
     enable_password = "enable password"
+    vrf_management_name = "vrf name"
     cli_connection_type = CliConnectionType.SSH
     cli_tcp_port = 22
     session_concurrency_limit = 2
@@ -27,6 +28,7 @@ def test_cli_config(api, context_creator):
         attr_name.CLI_CONNECTION_TYPE: cli_connection_type.value,
         attr_name.CLI_TCP_PORT: cli_tcp_port,
         attr_name.SESSION_CONCURRENCY_LIMIT: session_concurrency_limit,
+        attr_name.VRF_MANAGEMENT_NAME: vrf_management_name,
     }
     r_attributes = {f"{r_model}.{k}": v for k, v in r_attributes.items()}
     context = context_creator(
@@ -52,6 +54,7 @@ def test_cli_config_with_autoload_context(api, context_creator):
     user = "user"
     password = "password"
     enable_password = "enable password"
+    vrf_management_name = "vrf name"
     cli_connection_type = CliConnectionType.SSH
     cli_tcp_port = 22
     session_concurrency_limit = 2
@@ -64,6 +67,7 @@ def test_cli_config_with_autoload_context(api, context_creator):
         attr_name.CLI_CONNECTION_TYPE: cli_connection_type.value,
         attr_name.CLI_TCP_PORT: cli_tcp_port,
         attr_name.SESSION_CONCURRENCY_LIMIT: session_concurrency_limit,
+        attr_name.VRF_MANAGEMENT_NAME: vrf_management_name,
     }
     r_attributes = {f"{r_model}.{k}": v for k, v in r_attributes.items()}
     context = context_creator(
