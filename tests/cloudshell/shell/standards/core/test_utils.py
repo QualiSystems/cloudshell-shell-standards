@@ -13,6 +13,10 @@ from cloudshell.shell.standards.core.utils import split_list_of_values
         ("a;b,c", ["a", "b", "c"]),
         ("a; ,c", ["a", "c"]),
         (" a  ; , c ", ["a", "c"]),
+        ("", []),
+        (" ", []),
+        (";", []),
+        (",", []),
     ],
 )
 def test_split_list_of_values(string_list, expected_result):
