@@ -1,4 +1,10 @@
+from __future__ import annotations
+
 import functools
+import re
+from collections.abc import Iterator
+
+COLLECTION_SEPARATOR_PATTERN = re.compile(r"[,;]")
 
 
 def attr_length_validator(max_length: int):
@@ -21,3 +27,7 @@ def attr_length_validator(max_length: int):
         return inner
 
     return decorator_func
+
+
+def split_list_of_values(string: str) -> Iterator[str, None, None]:
+    return filter(bool, map(str.strip, COLLECTION_SEPARATOR_PATTERN.split(string)))
