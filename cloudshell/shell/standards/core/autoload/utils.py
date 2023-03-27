@@ -25,6 +25,7 @@ class AutoloadDetailsBuilder:
     ):
         self._resource_model = resource_model
         self._existed_resource_info = existed_resource_info
+        self._updated_rel_path_map = {}
 
     def _build_branch(self, resource: AbstractResource) -> AutoLoadDetails:
         resource.shell_name = resource.shell_name or self._resource_model.shell_name
@@ -46,6 +47,7 @@ class AutoloadDetailsBuilder:
     def _get_autoload_resources(
         self, resource: AbstractResource
     ) -> list[AutoLoadResource]:
+        pass
         relative_address = self._get_relative_address(resource)
         if relative_address:
             autoload_resource = AutoLoadResource(
@@ -80,12 +82,45 @@ class AutoloadDetailsBuilder:
 
     def _get_relative_address(self, resource: AbstractResource) -> str:
         addr = self._existed_resource_info.get_address(resource.full_name)
+        name = self._existed_resource_info.get_name_by_unique_id(
+            resource.unique_identifier
+        )
         if addr:
             # we should return address without root resource name
             addr = addr.split("/", 1)[-1]
+
+        elif name and name.endswith(
+            self._assemble_full_name(resource).split("/", 1)[-1]
+        ):
+            addr = self._existed_resource_info.get_address(name)
+            if addr:
+                addr = addr.split("/", 1)[-1]
+
         else:
             addr = str(resource.relative_address)
+            if not addr:
+                return ""
+            parent_rel_path = self._updated_rel_path_map.get(
+                str(resource.parent.relative_address)
+            )
+            if parent_rel_path:
+                addr = addr.replace(
+                    f"{str(resource.parent.relative_address)}/", f"{parent_rel_path}/"
+                )
+
+            i = 0
+            while self._existed_resource_info.check_address_exists(addr):
+                addr = f"{addr}-{i}"
+                i += 1
+        if addr != str(resource.relative_address):
+            self._updated_rel_path_map[str(resource.relative_address)] = addr
         return addr
+
+    def _assemble_full_name(self, resource: AbstractResource) -> str:
+        if resource.parent:
+            return f"{self._assemble_full_name(resource.parent)}/{resource.name}"
+        else:
+            return resource.name
 
 
 def get_unique_id(r_info: ExistedResourceInfo, resource: AbstractResource) -> str:
