@@ -1,6 +1,9 @@
 import uuid
+from unittest.mock import Mock
 
 import pytest
+
+from cloudshell.shell.core.driver_context import AutoLoadDetails
 
 from cloudshell.shell.standards.autoload_generic_models import (
     GenericChassis,
@@ -9,6 +12,10 @@ from cloudshell.shell.standards.autoload_generic_models import (
     GenericResourceModel,
     GenericSubModule,
 )
+from cloudshell.shell.standards.core.autoload.existed_resource_info import (
+    ExistedResourceInfo,
+)
+from cloudshell.shell.standards.core.autoload.utils import AutoloadDetailsBuilder
 
 
 class TestNetworkingResourceModel(GenericResourceModel):
@@ -130,3 +137,144 @@ def test_autoload_details_builder_with_cs_id(resource):
 
     unique_ids = [resource.unique_identifier for resource in structure.resources]
     assert len(set(unique_ids)) == len(unique_ids), "Not all unique ids are unique"
+
+
+def test_build_details_with_no_sub_resources(resource):
+    # Arrange
+    api = Mock(
+        DecryptPassword=lambda x: Mock(Value=x),
+        GetResourceDetails=lambda x: Mock(
+            UniqueIdentifier="uniq id", ChildResources=[]
+        ),
+    )
+    resource_model = TestNetworkingResourceModel(
+        "resource name", "shell name", "CS_Switch", api
+    )
+    resource_model.contact_name = "contact name"
+    resource_model.os_version = "os version"
+    resource_model.location = "location"
+    resource_model.model = "model"
+    resource_model.model_name = "model"
+    resource_model.vendor = "vendor"
+    resource_model.system_name = "system name"
+    existed_resource_info = ExistedResourceInfo("TestResource", api)
+    existed_resource_info.load_data()
+    builder = AutoloadDetailsBuilder(resource_model, existed_resource_info)
+
+    # Act
+    result = builder.build_details()
+
+    # Assert
+    assert isinstance(result, AutoLoadDetails)
+    assert len(result.resources) == 0
+    assert len(result.attributes) == 7
+
+
+def test_get_relative_address_with_updated_rel_path_map(resource):
+    # Arrange
+    resource._existed_resource_info = ExistedResourceInfo("TestResource", resource._api)
+    resource._existed_resource_info.load_data()
+    _ = resource._existed_resource_info.uniq_id
+    resource._existed_resource_info._full_name_to_uniq_id = {
+        "123123123": "123/Chassis 1/Module M1"
+    }
+    resource._existed_resource_info._uniq_id_to_full_name = {
+        "123/Chassis 1/Module M1": "123123123"
+    }
+    resource._existed_resource_info._full_name_to_address = {
+        "123/Chassis 1/Module M1": "1.1.1.1/CH1/M1"
+    }
+    resource._existed_resource_info._full_address_to_name = {
+        "CH1/M1": "123/Chassis 1/Module M1"
+    }
+
+    resource._api.GetResourceDetails = lambda x: Mock(
+        UniqueIdentifier="uniq id", ChildResources=[]
+    )
+
+    # Act
+    result = resource.build()
+
+    # Assert
+    duplicate_rel_path_module = next(
+        (x for x in result.resources if x.name.endswith("Module 1")), None
+    )
+    assert duplicate_rel_path_module.relative_address.endswith("CH1/M1-0")
+    assert (
+        next(
+            (
+                x
+                for x in result.resources
+                if x.relative_address.endswith("CH1/M1-0/SM1")
+            ),
+            None,
+        )
+        is not None
+    )
+
+
+def test_get_relative_address_with_updated_rel_path_map_re_autoload(resource):
+    # Arrange
+    resource._existed_resource_info = ExistedResourceInfo("TestResource", resource._api)
+    resource._existed_resource_info.load_data()
+    _ = resource._existed_resource_info.uniq_id
+    module_1_uniq_id = next(
+        (
+            x
+            for x in resource._child_resources[0]._child_resources
+            if x.name == "Module 1"
+        ),
+        None,
+    ).unique_identifier
+    resource._existed_resource_info._full_name_to_uniq_id = {
+        "resource name/Chassis 1/Module M1": "123123123",
+        "resource name/Chassis 1/Module 1": module_1_uniq_id,
+    }
+    resource._existed_resource_info._uniq_id_to_full_name = {
+        "123123123": "resource name/Chassis 1/Module M1",
+        module_1_uniq_id: "resource name/Chassis 1/Module 1",
+    }
+    resource._existed_resource_info._full_name_to_address = {
+        "resource name/Chassis 1/Module M1": "1.1.1.1/CH1/M1",
+        "resource name/Chassis 1/Module 1": "1.1.1.1/CH1/M1-0",
+    }
+    resource._existed_resource_info._full_address_to_name = {
+        "CH1/M1": "resource name/Chassis 1/Module M1",
+        "CH1/M1-0": "resource name/Chassis 1/Module 1",
+    }
+
+    resource._api.GetResourceDetails = lambda x: Mock(
+        UniqueIdentifier="uniq id", ChildResources=[]
+    )
+
+    # Act
+    result = resource.build()
+
+    # Assert
+    duplicate_rel_path_module = next(
+        (x for x in result.resources if x.name.endswith("Module 1")), None
+    )
+    assert duplicate_rel_path_module.relative_address.endswith("CH1/M1-0")
+    assert duplicate_rel_path_module.unique_identifier == module_1_uniq_id
+    assert (
+        next(
+            (
+                x
+                for x in result.resources
+                if x.relative_address.endswith("CH1/M1-0/SM1")
+            ),
+            None,
+        )
+        is not None
+    )
+    assert (
+        next(
+            (
+                x
+                for x in result.resources
+                if x.relative_address.endswith("CH1/M1-0-0/SM1")
+            ),
+            None,
+        )
+        is None
+    )
