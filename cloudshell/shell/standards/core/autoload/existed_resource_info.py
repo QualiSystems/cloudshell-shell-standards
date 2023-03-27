@@ -30,7 +30,9 @@ class ExistedResourceInfo:
         self._loaded = Event()
         self._uniq_id = None
         self._full_name_to_uniq_id: dict[str, str] | None = None
+        self._uniq_id_to_full_name: dict[str, str] | None = None
         self._full_name_to_address: dict[str, str] | None = None
+        self._full_address_to_name: dict[str, str] | None = None
 
     @property
     @_wait_until_loaded
@@ -45,6 +47,14 @@ class ExistedResourceInfo:
     def get_address(self, full_name: str) -> str | None:
         return self._full_name_to_address.get(full_name)
 
+    @_wait_until_loaded
+    def check_address_exists(self, full_address: str) -> str | None:
+        return self._full_address_to_name.get(full_address)
+
+    @_wait_until_loaded
+    def get_name_by_unique_id(self, unique_id: str) -> str | None:
+        return self._uniq_id_to_full_name.get(unique_id)
+
     def load_data(self) -> None:
         self._started.set()
         Thread(target=self._load_data).start()
@@ -53,7 +63,9 @@ class ExistedResourceInfo:
         r_info = self._api.GetResourceDetails(self.name)
         self._uniq_id = r_info.UniqeIdentifier
         self._full_name_to_uniq_id = {}
+        self._uniq_id_to_full_name = {}
         self._full_name_to_address = {}
+        self._full_address_to_name = {}
 
         for child in r_info.ChildResources:
             # Root resource contains invalid uniq id for children but newly loaded child
@@ -65,6 +77,8 @@ class ExistedResourceInfo:
 
     def _build_maps_for_resource(self, r_info: ResourceInfo) -> None:
         self._full_name_to_uniq_id[r_info.Name] = r_info.UniqeIdentifier
+        self._uniq_id_to_full_name[r_info.UniqeIdentifier] = r_info.Name
         self._full_name_to_address[r_info.Name] = r_info.FullAddress
+        self._full_address_to_name[r_info.FullAddress.split("/", 1)[-1]] = r_info.Name
         for child_info in r_info.ChildResources:
             self._build_maps_for_resource(child_info)
