@@ -47,7 +47,6 @@ class AutoloadDetailsBuilder:
     def _get_autoload_resources(
         self, resource: AbstractResource
     ) -> list[AutoLoadResource]:
-        pass
         relative_address = self._get_relative_address(resource)
         if relative_address:
             autoload_resource = AutoLoadResource(
@@ -89,9 +88,7 @@ class AutoloadDetailsBuilder:
             # we should return address without root resource name
             addr = addr.split("/", 1)[-1]
 
-        elif name and name.endswith(
-            self._assemble_full_name(resource).split("/", 1)[-1]
-        ):
+        elif name and name.endswith(resource.full_name.split("/", 1)[-1]):
             addr = self._existed_resource_info.get_address(name)
             if addr:
                 addr = addr.split("/", 1)[-1]
@@ -109,18 +106,14 @@ class AutoloadDetailsBuilder:
                 )
 
             i = 0
+            new_addr = addr
             while self._existed_resource_info.check_address_exists(addr):
-                addr = f"{addr}-{i}"
+                addr = f"{new_addr}-{i}"
                 i += 1
+
         if addr != str(resource.relative_address):
             self._updated_rel_path_map[str(resource.relative_address)] = addr
         return addr
-
-    def _assemble_full_name(self, resource: AbstractResource) -> str:
-        if resource.parent:
-            return f"{self._assemble_full_name(resource.parent)}/{resource.name}"
-        else:
-            return resource.name
 
 
 def get_unique_id(r_info: ExistedResourceInfo, resource: AbstractResource) -> str:
