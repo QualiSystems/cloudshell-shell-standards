@@ -43,6 +43,10 @@ class ResourceNode(ABC):
 
     @property
     def full_name(self) -> str:
+        """Returns full resource name with all parents and the root resource name also.
+
+        Example: "Cisco/Chassis 1/Module 1/Port 1"
+        """
         if self.parent:
             return f"{self.parent.full_name}/{self.name}"
         return self.name

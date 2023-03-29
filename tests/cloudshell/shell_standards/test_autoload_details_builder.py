@@ -139,14 +139,8 @@ def test_autoload_details_builder_with_cs_id(resource):
     assert len(set(unique_ids)) == len(unique_ids), "Not all unique ids are unique"
 
 
-def test_build_details_with_no_sub_resources(resource):
+def test_build_details_with_no_sub_resources(resource, api):
     # Arrange
-    api = Mock(
-        DecryptPassword=lambda x: Mock(Value=x),
-        GetResourceDetails=lambda x: Mock(
-            UniqueIdentifier="uniq id", ChildResources=[]
-        ),
-    )
     resource_model = TestNetworkingResourceModel(
         "resource name", "shell name", "CS_Switch", api
     )
@@ -170,47 +164,28 @@ def test_build_details_with_no_sub_resources(resource):
     assert len(result.attributes) == 7
 
 
-def test_get_relative_address_with_updated_rel_path_map(resource):
+def test_get_relative_address_with_updated_address(resource):
+    # Check that newly autoloaded resource with the same address as existed
+    # will get new address.
     # Arrange
-    resource._existed_resource_info = ExistedResourceInfo("TestResource", resource._api)
-    resource._existed_resource_info.load_data()
-    _ = resource._existed_resource_info.uniq_id
-    resource._existed_resource_info._full_name_to_uniq_id = {
-        "123123123": "123/Chassis 1/Module M1"
-    }
-    resource._existed_resource_info._uniq_id_to_full_name = {
-        "123/Chassis 1/Module M1": "123123123"
-    }
-    resource._existed_resource_info._full_name_to_address = {
-        "123/Chassis 1/Module M1": "1.1.1.1/CH1/M1"
-    }
-    resource._existed_resource_info._full_address_to_name = {
-        "CH1/M1": "123/Chassis 1/Module M1"
-    }
-
-    resource._api.GetResourceDetails = lambda x: Mock(
-        UniqueIdentifier="uniq id", ChildResources=[]
-    )
+    ex_res = resource._existed_resource_info
+    ex_res.wait_until_loaded()
+    module_full_name = "123/Chassis 1/Module M1"
+    module_uniq_id = "123123123"
+    module_addr = "CH1/M1"
+    ex_res._full_name_to_uniq_id = {module_full_name: module_uniq_id}
+    ex_res._uniq_id_to_full_name = {module_uniq_id: module_full_name}
+    ex_res._full_name_to_address = {module_full_name: module_addr}
+    ex_res._address_to_full_name = {module_addr: module_full_name}
 
     # Act
     result = resource.build()
 
     # Assert
-    duplicate_rel_path_module = next(
-        (x for x in result.resources if x.name.endswith("Module 1")), None
-    )
-    assert duplicate_rel_path_module.relative_address.endswith("CH1/M1-0")
-    assert (
-        next(
-            (
-                x
-                for x in result.resources
-                if x.relative_address.endswith("CH1/M1-0/SM1")
-            ),
-            None,
-        )
-        is not None
-    )
+    updated_module = next(x for x in result.resources if x.name == "Module 1")
+    assert updated_module.relative_address == "CH1/M1-0"
+    updated_sub_module = next(x for x in result.resources if x.name == "SubModule 1")
+    assert updated_sub_module.relative_address == "CH1/M1-0/SM1"
 
 
 def test_get_relative_address_with_updated_rel_path_map_re_autoload(resource):
@@ -278,3 +253,36 @@ def test_get_relative_address_with_updated_rel_path_map_re_autoload(resource):
         )
         is None
     )
+
+
+def test_get_address_from_cs(resource):
+    ex_res = resource._existed_resource_info
+    ex_res.wait_until_loaded()
+    cs_module_addr = "CH1/Module2"
+    ex_res._full_name_to_address = {
+        f"{resource.name}/Chassis 1/Module 2": cs_module_addr
+    }
+
+    result = resource.build()
+
+    module = next(x for x in result.resources if x.name == "Module 2")
+    assert module.relative_address == cs_module_addr
+    port = next(x for x in result.resources if x.name == "Port 2-3")
+    assert port.relative_address == f"{cs_module_addr}/P2-3"
+
+
+def test_get_address_from_cs_with_another_name(resource):
+    ex_res = resource._existed_resource_info
+    ex_res.wait_until_loaded()
+    cs_module_addr = "CH1/AnotherModule2"
+    cs_module = resource._child_resources[0]._child_resources[1]
+    cs_module_name = f"{cs_module.full_name}-0"
+    ex_res._full_name_to_address = {cs_module_name: cs_module_addr}
+    ex_res._uniq_id_to_full_name = {cs_module.unique_identifier: cs_module_name}
+
+    result = resource.build()
+
+    module = next(x for x in result.resources if x.name == "Module 2")
+    assert module.relative_address == cs_module_addr
+    port = next(x for x in result.resources if x.name == "Port 2-3")
+    assert port.relative_address == f"{cs_module_addr}/P2-3"
