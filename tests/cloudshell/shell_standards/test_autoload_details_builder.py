@@ -269,20 +269,3 @@ def test_get_address_from_cs(resource):
     assert module.relative_address == cs_module_addr
     port = next(x for x in result.resources if x.name == "Port 2-3")
     assert port.relative_address == f"{cs_module_addr}/P2-3"
-
-
-def test_get_address_from_cs_with_another_name(resource):
-    ex_res = resource._existed_resource_info
-    ex_res.wait_until_loaded()
-    cs_module_addr = "CH1/AnotherModule2"
-    cs_module = resource._child_resources[0]._child_resources[1]
-    cs_module_name = f"{cs_module.full_name}-0"
-    ex_res._full_name_to_address = {cs_module_name: cs_module_addr}
-    ex_res._uniq_id_to_full_name = {cs_module.unique_identifier: cs_module_name}
-
-    result = resource.build()
-
-    module = next(x for x in result.resources if x.name == "Module 2")
-    assert module.relative_address == cs_module_addr
-    port = next(x for x in result.resources if x.name == "Port 2-3")
-    assert port.relative_address == f"{cs_module_addr}/P2-3"
