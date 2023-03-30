@@ -11,6 +11,7 @@ from cloudshell.shell.standards.core.autoload.core_entities import (
     RelativeAddress,
 )
 from cloudshell.shell.standards.core.namespace_type import NameSpaceType
+from cloudshell.shell.standards.core.utils import validate_str_for_cs
 from cloudshell.shell.standards.exceptions import ResourceModelException
 
 SUB_RESOURCE_TYPE = TypeVar("SUB_RESOURCE_TYPE", bound="ResourceNode")
@@ -123,6 +124,8 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
         name: str | None = None,
         unique_id: str | None = None,
     ):
+        if name:
+            validate_str_for_cs(name)
         ResourceNode.__init__(
             self, index, self._RELATIVE_ADDRESS_PREFIX, name, unique_id
         )
