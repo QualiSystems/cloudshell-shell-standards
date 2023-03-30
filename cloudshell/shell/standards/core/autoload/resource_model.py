@@ -70,8 +70,8 @@ class ResourceNode(ABC):
         sub_resource.parent = self
         self._child_resources.append(sub_resource)
 
-    def extract_sub_resources(self) -> list[SUB_RESOURCE_TYPE]:
-        return self._child_resources
+    def extract_sub_resources(self) -> tuple[SUB_RESOURCE_TYPE, ...]:
+        return tuple(self._child_resources)
 
 
 class NamespaceAttributeContainer(AttributeContainer):
@@ -133,7 +133,7 @@ class AbstractResource(ResourceNode, NamespaceAttributeContainer):
     def _add_sub_resource(self, sub_resource: AbstractResource) -> None:
         super()._add_sub_resource(sub_resource)
 
-    def extract_sub_resources(self: AbstractResource) -> list[AbstractResource]:
+    def extract_sub_resources(self: AbstractResource) -> tuple[AbstractResource, ...]:
         return super().extract_sub_resources()
 
     def _gen_name(self) -> str:
