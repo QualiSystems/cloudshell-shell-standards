@@ -9,9 +9,12 @@ from typing_extensions import Self
 from cloudshell.api.cloudshell_api import CloudShellAPISession
 
 from cloudshell.shell.standards.core.resource_conf.attrs_converter import (
+    AbsModelAttrsConverter,
+    ModelAttrsConverter,
+)
+from cloudshell.shell.standards.core.resource_conf.attrs_getter import (
     RESOURCE_CONTEXT_TYPES,
-    AbsResourceAttrsConverter,
-    ResourceAttrsConverter,
+    ResourceContextAttrsGetter,
 )
 
 
@@ -28,7 +31,10 @@ class BaseConfig:
         enum_res_attr: EnumSubClass = attr("Enum Attribute")
     """
 
-    _CONVERTER: ClassVar[type[AbsResourceAttrsConverter]] = ResourceAttrsConverter
+    _CONVERTER: ClassVar[type[AbsModelAttrsConverter]] = ModelAttrsConverter
+    _ATTR_GETTER: ClassVar[
+        type[ResourceContextAttrsGetter]
+    ] = ResourceContextAttrsGetter
     name: str
     shell_name: str
     family_name: str
@@ -43,7 +49,8 @@ class BaseConfig:
     def from_context(
         cls, context: RESOURCE_CONTEXT_TYPES, api: CloudShellAPISession
     ) -> Self:
-        converter = cls._CONVERTER(context, cls, _password_decryptor(api))
+        attrs = cls._ATTR_GETTER(cls, password_decryptor(api), context).get_attrs()
+        converter = cls._CONVERTER(cls, attrs)
 
         return cls(
             name=context.resource.name,
@@ -52,11 +59,11 @@ class BaseConfig:
             address=context.resource.address,
             api=api,
             # this should return kwargs but BaseConfig doesn't have any
-            **converter.get_attrs(),  # noqa
+            **converter.convert(),  # noqa
         )
 
 
-def _password_decryptor(api: CloudShellAPISession) -> Callable[[str], str]:
+def password_decryptor(api: CloudShellAPISession) -> Callable[[str], str]:
     def wrapped(val: str) -> str:
         return api.DecryptPassword(val).Value
 

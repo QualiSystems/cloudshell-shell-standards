@@ -7,7 +7,6 @@ from typing import ClassVar
 
 from attrs import define
 
-from cloudshell.shell.standards.core.resource_conf.resource_attr import AttrMeta
 from cloudshell.shell.standards.core.utils import split_list_of_values
 from cloudshell.shell.standards.exceptions import ResourceConfigException
 
@@ -28,9 +27,9 @@ class AttributeConvertError(ResourceConfigException):
 class AbsConverter(ABC):
     type_: ClassVar[type]
 
-    def __init__(self, val: str, meta: AttrMeta):
+    def __init__(self, val: str, name: str):
         self.val = val
-        self.meta = meta
+        self.name = name
 
     @classmethod
     def get_str_type(cls) -> str:
@@ -48,9 +47,7 @@ class AbsConverter(ABC):
         try:
             return self._convert()
         except Exception as e:
-            raise AttributeConvertError(
-                self.meta.name, self.get_str_type(), self.val
-            ) from e
+            raise AttributeConvertError(self.name, self.get_str_type(), self.val) from e
 
 
 class AbsCollectionConverter(AbsConverter):

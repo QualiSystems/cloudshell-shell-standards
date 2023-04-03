@@ -69,14 +69,14 @@ class TestAbsConverter:
             def _convert(self) -> float:
                 return float(self.val)
 
-        meta = AttrMeta("test_attr", NameSpaceType.SHELL_NAME, False)
-        converter = FloatConverter("abc", meta)
+        attr_name = "test_attr"
+        converter = FloatConverter("abc", attr_name)
         with pytest.raises(AttributeConvertError) as exc_info:
             converter.convert()
         assert exc_info.value.name == "test_attr"
         assert exc_info.value.str_type == "float"
         assert exc_info.value.val == "abc"
-        assert f"attribute '{meta.name}' should be of type float" in str(exc_info.value)
+        assert f"attribute '{attr_name}' should be of type float" in str(exc_info.value)
 
     def test_is_supported_type_invalid(self):
         class IntConverter(AbsConverter):
