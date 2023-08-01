@@ -3,6 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from ipaddress import IPv4Address
 
+import pytest
 from attrs import define
 
 from cloudshell.shell.standards.core.resource_conf import BaseConfig, attr
@@ -19,28 +20,52 @@ class SimpleConf(BaseConfig):
     int_res_attr: int = attr("Int Attribute")
     enum_res_attr: EnumSubClass = attr("Enum Attribute")
     ip: IPv4Address = attr("IP Address")
+    list_attr: list[str] = attr("List Attribute")
 
 
-def test_from_context(api, context_creator):
+@pytest.mark.parametrize(
+    ("attr_values", "expected_values"),
+    (
+        (
+            ("str_attr", "12", "Value 2", "192.168.12.13", "a;b,c"),
+            (
+                "str_attr",
+                12,
+                EnumSubClass.VALUE_2,
+                IPv4Address("192.168.12.13"),
+                ["a", "b", "c"],
+            ),
+        ),
+        (
+            ("str_attr", "10", "Value 1", "127.0.0.1", ""),
+            ("str_attr", 10, EnumSubClass.VALUE_1, IPv4Address("127.0.0.1"), []),
+        ),
+    ),
+)
+def test_from_context(api, context_creator, attr_values, expected_values):
     r_name = "resource name"
     r_model = "resource model"
     r_family = "resource family"
     r_address = "resource address"
-    str_attr = "str attr"
-    int_attr = 12
-    enum_attr = EnumSubClass.VALUE_2
-    ip_attr = IPv4Address("192.168.12.13")
-    r_attributes = {
-        "Str Attribute": str_attr,
-        "Int Attribute": str(int_attr),
-        "Enum Attribute": enum_attr.value,
-        "IP Address": str(ip_attr),
-    }
+
+    r_attributes = dict(
+        zip(
+            [
+                "Str Attribute",
+                "Int Attribute",
+                "Enum Attribute",
+                "IP Address",
+                "List Attribute",
+            ],
+            attr_values,
+        )
+    )
     r_attributes = {f"{r_model}.{k}": v for k, v in r_attributes.items()}
     context = context_creator(r_name, r_model, r_family, r_address, r_attributes)
 
     conf = SimpleConf.from_context(context, api)
 
+    str_attr, int_attr, enum_attr, ip_attr, list_attr = expected_values
     assert conf.name == r_name
     assert conf.shell_name == r_model
     assert conf.family_name == r_family
