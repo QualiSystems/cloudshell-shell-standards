@@ -78,11 +78,12 @@ class AbsAttrsGetter(ABC):
         if default is RAISE:
             if not attr_present:
                 raise error
-            elif str_type != "str":
-                # empty string is not valid value for non-str types
+            elif (
+                str_type != "str"  # empty string valid for str type
+                and "[str]" not in str_type  # empty string valid for sequence of str
+            ):
                 raise error
             else:
-                # empty string is valid value for str types
                 default = ""
 
         return default

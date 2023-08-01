@@ -127,11 +127,19 @@ def test_invalid_bool(meta):
         conv.convert()
 
 
-def test_collection_converter(meta):
+@pytest.mark.parametrize(
+    ("str_val", "expected"),
+    (
+        ("str", ["str"]),
+        ("a,b;c", ["a", "b", "c"]),
+        ("", []),
+    ),
+)
+def test_collection_converter(str_val, expected, meta):
     class TestCollectionConverter(CollectionConverter):
         type_ = list
 
-    conv = TestCollectionConverter("a,b;c", meta)
+    conv = TestCollectionConverter(str_val, meta)
 
-    assert conv.convert() == ["a", "b", "c"]
+    assert conv.convert() == expected
     assert conv.get_str_child_type("list[str]") == "str"
